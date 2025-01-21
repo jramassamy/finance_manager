@@ -9,7 +9,7 @@ const Color kPink = Color(0xFFFE1684);
 const Color kBlue = Color(0xFF3285F3);
 
 class BudgetPage extends StatelessWidget {
-  const BudgetPage({Key? key}) : super(key: key);
+  const BudgetPage({super.key});
 
   @override
   Widget build(BuildContext context) {

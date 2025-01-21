@@ -8,11 +8,11 @@ class CategoryCard extends StatelessWidget {
   final Color baseColor;
 
   const CategoryCard({
-    Key? key,
+    super.key,
     required this.title,
     required this.items,
     required this.baseColor,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

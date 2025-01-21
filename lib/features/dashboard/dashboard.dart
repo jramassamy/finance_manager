@@ -12,7 +12,7 @@ const Color kBlue = Color(0xFF3285F3);
 const double spaceXBetweenSummary = 32.0;
 const double spaceYBetweenSummary = 16.0;
 class DashboardPage extends StatelessWidget {
-  const DashboardPage({Key? key}) : super(key: key);
+  const DashboardPage({super.key});
 
   @override
   Widget build(BuildContext context) {

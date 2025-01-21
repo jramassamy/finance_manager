@@ -18,12 +18,12 @@ class BudgetTableSection extends StatefulWidget {
   final bool isExpanded;
 
   const BudgetTableSection({
-    Key? key,
+    super.key,
     required this.title,
     required this.backgroundColor,
     required this.items,
     required this.isExpanded,
-  }) : super(key: key);
+  });
 
   @override
   State<BudgetTableSection> createState() => _BudgetTableSectionState();

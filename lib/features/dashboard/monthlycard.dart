@@ -9,7 +9,7 @@ const double kPadding = 8.0;
 
 /// A card that shows the full "Breakdown" for the selected month/year
 class MonthlyCard extends StatefulWidget {
-  const MonthlyCard({Key? key}) : super(key: key);
+  const MonthlyCard({super.key});
 
   @override
   State<MonthlyCard> createState() => _MonthlyCardState();

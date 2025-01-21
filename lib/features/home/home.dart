@@ -4,6 +4,8 @@ import '../dashboard/dashboard.dart';
 import '../budget/budget.dart';
 
 class HomePageWithMenu extends StatefulWidget {
+  const HomePageWithMenu({super.key});
+
   @override
   State<HomePageWithMenu> createState() => _HomePageWithMenuState();
 }

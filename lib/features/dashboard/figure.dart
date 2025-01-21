@@ -4,7 +4,7 @@ import 'package:fl_chart/fl_chart.dart';
 import '../budget/data.dart'; // <-- Your data.dart
 
 class FigureWidget extends StatefulWidget {
-  const FigureWidget({Key? key}) : super(key: key);
+  const FigureWidget({super.key});
 
   @override
   State<FigureWidget> createState() => _FigureWidgetState();
