@@ -78,8 +78,16 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
   void _commitEditing() {
     if (!_isEditing || _editingItem == null || _editingIndex == null) return;
 
+    if(_editingController.text.trim().isEmpty) {
+      _editingController.text = _originalValue!;
+    }
+
     final newValue = _editingController.text.trim();
-    final parsed = num.tryParse(newValue) ?? 0;
+    num parsed = num.tryParse(newValue) ?? 0;
+
+    if (parsed is double) {
+      parsed = double.parse(parsed.toStringAsFixed(2));
+    }
 
     setState(() {
       _editingItem!.monthly[_editingIndex!] = parsed;
@@ -105,15 +113,25 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       _editingItem = item;
       _editingIndex = monthIndex;
       _originalValue = item.monthly[monthIndex].toString();
-      _editingController.text = _originalValue!;
+      _editingController.text = '';
+      // _editingController.text = _originalValue!;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
+      return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent && 
+            event.logicalKey == LogicalKeyboardKey.escape && 
+            _isEditing) {
+          _commitEditing();
+        }
+      },
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
         InkWell(
           onTap: () {
             setState(() {
@@ -187,8 +205,9 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
             ],
           ),
         ),
-        _buildRow(_totalItem, isBold: true),
-      ],
+          _buildRow(_totalItem, isBold: true),
+        ],
+      ),
     );
   }
 
@@ -246,7 +265,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                             onSubmitted: (_) => _commitEditing(),
                           )
                         : Text(
-                            _formatNumber(item.monthly[index].toInt()),
+                            _formatNumber(item.monthly[index].toDouble()),
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: kCellFontSize,
@@ -268,7 +287,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
               child: Padding(
                 padding: kCellPadding,
                 child: Text(
-                  _formatNumber(itemYearTotal.toInt()),
+                  _formatNumber(itemYearTotal.toDouble()),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                       fontSize: kCellFontSize,
@@ -282,11 +301,17 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
     );
   }
 
-  String _formatNumber(int number) {
-    return number.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (match) => '${match[1]} ',
-        );
+  String _formatNumber(num number) {
+    final String numStr = number.toString();
+    return numStr.endsWith('.0') 
+        ? numStr.substring(0, numStr.length - 2).replaceAllMapped(
+            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+            (match) => '${match[1]} ',
+          )
+        : numStr.replaceAllMapped(
+            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+            (match) => '${match[1]} ',
+          );
   }
 
   @override
