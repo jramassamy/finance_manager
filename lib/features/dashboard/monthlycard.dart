@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../budget/data.dart';
 
 // Configurable parameters
@@ -15,9 +16,9 @@ class MonthlyCard extends StatefulWidget {
 }
 
 class _MonthlyCardState extends State<MonthlyCard> {
-
   // The currently displayed month index (0..11). Example: 7 -> "août" (August)
   int _monthIndex = DateTime.now().month - 1; // 0-based index for current month
+  final FocusNode _focusNode = FocusNode();
 
   // Editing state
   bool _isEditing = false;
@@ -49,7 +50,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingRowIndex = rowIndex;
       _editingCategory = category;
       _originalValue = value.toString();
-      _editingController.text = _originalValue!;
+      _editingController.text = '';
+      // _editingController.text = _originalValue!;
     });
   }
 
@@ -59,15 +61,22 @@ class _MonthlyCardState extends State<MonthlyCard> {
       return;
     }
 
+    if (_editingController.text.trim().isEmpty) {
+      _editingController.text = _originalValue!;
+    }
+
     final newValue = double.tryParse(_editingController.text.trim()) ?? 0.0;
 
     setState(() {
       if (_editingCategory == 'Income') {
-        BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+        BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] =
+            newValue;
       } else if (_editingCategory == 'Expenses') {
-        BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+        BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] =
+            newValue;
       } else if (_editingCategory == 'Savings') {
-        BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+        BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] =
+            newValue;
       }
 
       // Save changes
@@ -97,11 +106,10 @@ class _MonthlyCardState extends State<MonthlyCard> {
   }
 
   /// Helper that builds the "Income", "Expenses", or "Savings" sections
-  Widget _buildCategorySection({
-    required String categoryTitle,
-    required Color headerColor,
-    required List<BudgetItem> items
-  }) {
+  Widget _buildCategorySection(
+      {required String categoryTitle,
+      required Color headerColor,
+      required List<BudgetItem> items}) {
     // We track total sums for tracked/budget to compute the "total" row
     double totalTracked = 0;
     double totalBudget = 0;
@@ -119,7 +127,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
         // Table header row
         Container(
           color: headerColor,
-          padding: EdgeInsets.symmetric(vertical: kPadding/4, horizontal: kPadding),
+          padding: EdgeInsets.symmetric(
+              vertical: kPadding / 4, horizontal: kPadding),
           child: Row(
             children: [
               Expanded(
@@ -127,38 +136,44 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 child: Padding(
                   padding: EdgeInsets.only(left: 0),
                   child: Text(categoryTitle,
-                      style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600, color: Colors.white)),
                 ),
               ),
               Expanded(
                 flex: 2,
                 child: Text('Tracked',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.white)),
               ),
               Expanded(
                 flex: 2,
                 child: Text('Budget',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.white)),
               ),
               Expanded(
                 flex: 2,
                 child: Text('% Compl.',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.white)),
               ),
               Expanded(
                 flex: 2,
                 child: Text('Remaining',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.white)),
               ),
               Expanded(
                 flex: 2,
                 child: Text('Excess',
                     textAlign: TextAlign.center,
-                    style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white)),
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.white)),
               ),
             ],
           ),
@@ -242,7 +257,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
           top: BorderSide(color: borderColor),
         ),
       ),
-      padding: EdgeInsets.symmetric(vertical: kPadding/4, horizontal: kPadding),
+      padding:
+          EdgeInsets.symmetric(vertical: kPadding / 4, horizontal: kPadding),
       child: Row(
         children: [
           // Name
@@ -250,10 +266,15 @@ class _MonthlyCardState extends State<MonthlyCard> {
             flex: 4,
             child: Padding(
               padding: const EdgeInsets.only(left: 0),
-              child: Text(
-                name,
-                style: TextStyle(
-                    fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal),
+              child: Tooltip(
+                message: name,
+                preferBelow: true,
+                child: Text(
+                  name.length > 20 ? '${name.substring(0, 20)}...' : name,
+                  style: TextStyle(
+                      fontWeight:
+                          isTotal ? FontWeight.w600 : FontWeight.normal),
+                ),
               ),
             ),
           ),
@@ -279,7 +300,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 : GestureDetector(
                     onTap: onBudgetTap,
                     child: Padding(
-                      padding: EdgeInsets.symmetric(vertical: kPadding/4),
+                      padding: EdgeInsets.symmetric(vertical: kPadding / 4),
                       child: isThisRowEditing
                           ? TextField(
                               controller: _editingController,
@@ -292,8 +313,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
                               ),
                               decoration: InputDecoration(
                                 isDense: true,
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: kPadding/2),
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: kPadding / 2),
                                 border: InputBorder.none,
                               ),
                               onSubmitted: (_) => _commitEditing(),
@@ -362,7 +383,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
         children: [
           const Text(
             'Breakdown – ',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
           ),
           DropdownButton<int>(
             value: _monthIndex,
@@ -391,7 +413,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
           ),
           const Text(
             ' 2025',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
+            style: TextStyle(
+                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
           ),
         ],
       ),
@@ -400,48 +423,54 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      // Tap anywhere outside the TextField to unfocus and commit the changes
-      onTap: () {
-        FocusScope.of(context).unfocus();
-        if (_isEditing) {
-          _commitEditing();
+    return KeyboardListener(
+      focusNode: _focusNode,
+      onKeyEvent: (KeyEvent event) {
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape &&
+            _isEditing) {
+          _cancelEditing(); // Using cancel instead of commit for Escape key
         }
       },
-      child: Card(
-        elevation: 4,
-        margin: EdgeInsets.all(kMargin),
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Month selector
-              _monthSelector(),
-              SizedBox(height: kMargin * 2),
+      child: GestureDetector(
+        // Tap anywhere outside the TextField to unfocus and commit the changes
+        onTap: () {
+          FocusScope.of(context).unfocus();
+          if (_isEditing) {
+            _commitEditing();
+          }
+        },
+        child: Card(
+          elevation: 4,
+          margin: EdgeInsets.all(kMargin),
+          child: SingleChildScrollView(
+            child: Column(
+              children: [
+                // Month selector
+                _monthSelector(),
+                SizedBox(height: kMargin * 2),
 
-              // Income section
-              _buildCategorySection(
-                categoryTitle: 'Income',
-                headerColor: const Color(0xFF26A86D),
-                items: BudgetData.incomeItems
+                // Income section
+                _buildCategorySection(
+                    categoryTitle: 'Income',
+                    headerColor: const Color(0xFF26A86D),
+                    items: BudgetData.incomeItems),
+                SizedBox(height: kMargin * 2),
 
-              ),
-              SizedBox(height: kMargin * 2),
+                // Expenses section
+                _buildCategorySection(
+                    categoryTitle: 'Expenses',
+                    headerColor: const Color(0xFFFE1684),
+                    items: BudgetData.expenseItems),
+                SizedBox(height: kMargin * 2),
 
-              // Expenses section
-              _buildCategorySection(
-                categoryTitle: 'Expenses',
-                headerColor: const Color(0xFFFE1684),
-                items: BudgetData.expenseItems
-              ),
-              SizedBox(height: kMargin * 2),
-
-              // Savings section
-              _buildCategorySection(
-                categoryTitle: 'Savings',
-                headerColor: const Color(0xFF3285F3),
-                items: BudgetData.savingsItems
-              ),
-            ],
+                // Savings section
+                _buildCategorySection(
+                    categoryTitle: 'Savings',
+                    headerColor: const Color(0xFF3285F3),
+                    items: BudgetData.savingsItems),
+              ],
+            ),
           ),
         ),
       ),
@@ -460,6 +489,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   @override
   void dispose() {
     _editingController.dispose();
+    _focusNode.dispose();
     super.dispose();
   }
 }

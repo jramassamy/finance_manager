@@ -75,6 +75,56 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
     _totalItem = BudgetItem(name: 'Total', monthly: totalMonthly, budget: totalMonthly);
   }
 
+  num _evaluateExpression(String expression) {
+    // Remove all spaces from the expression
+    expression = expression.replaceAll(' ', '');
+    
+    // Check if expression contains any invalid characters
+    if (!RegExp(r'^[0-9\.\+\-\*\/]+$').hasMatch(expression)) {
+      return 0;
+    }
+
+    // Check for consecutive operators
+    if (RegExp(r'[\+\-\*\/]{2,}').hasMatch(expression)) {
+      return 0; 
+    }
+
+    try {
+      // First handle multiplication and division
+      while (expression.contains(RegExp(r'[\*\/]'))) {
+        expression = expression.replaceAllMapped(
+          RegExp(r'(\d*\.?\d+)[\*\/](\d*\.?\d+)'),
+          (match) {
+            final num a = num.parse(match[1]!);
+            final num b = num.parse(match[2]!);
+            if (match[0]!.contains('*')) {
+              return (a * b).toString();
+            } else {
+              return (a / b).toString();
+            }
+          }
+        );
+      }
+
+      // Then handle addition and subtraction
+      final numbers = expression.split(RegExp(r'[\+\-]'));
+      final operators = expression.split(RegExp(r'[0-9\.]+')).where((op) => op.isNotEmpty).toList();
+      
+      num result = num.parse(numbers[0]);
+      for (int i = 0; i < operators.length; i++) {
+        final nextNum = num.parse(numbers[i + 1]);
+        if (operators[i] == '+') {
+          result += nextNum;
+        } else if (operators[i] == '-') {
+          result -= nextNum;
+        }
+      }
+      return result;
+    } catch (e) {
+      return 0;
+    }
+  }
+
   void _commitEditing() {
     if (!_isEditing || _editingItem == null || _editingIndex == null) return;
 
@@ -82,9 +132,18 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       _editingController.text = _originalValue!;
     }
 
-    final newValue = _editingController.text.trim();
-    num parsed = num.tryParse(newValue) ?? 0;
+    String newValue = _editingController.text.trim().replaceAll('=', '');
+    num parsed;
+    
+    // Check if the input contains arithmetic operators
+    if (newValue.contains(RegExp(r'[\+\-\*\/]'))) {
+      // Remove any equal signs from the expression
+      parsed = _evaluateExpression(newValue);
+    } else {
+      parsed = num.tryParse(newValue) ?? 0;
+    }
 
+    // Round to 2 decimal places if it's a double
     if (parsed is double) {
       parsed = double.parse(parsed.toStringAsFixed(2));
     }
@@ -227,11 +286,15 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
             flex: 3,
             child: Padding(
               padding: kCellPadding,
-              child: Text(
-                item.name,
-                style: TextStyle(
-                    fontSize: kCellFontSize,
-                    fontWeight: isBold ? FontWeight.w600 : FontWeight.normal),
+              child: Tooltip(
+                message: item.name,
+                preferBelow: true,
+                child: Text(
+                  item.name.length > 24 ? '${item.name.substring(0, 24)}...' : item.name,
+                  style: TextStyle(
+                      fontSize: kCellFontSize,
+                      fontWeight: isBold ? FontWeight.w600 : FontWeight.normal),
+                ),
               ),
             ),
           ),
