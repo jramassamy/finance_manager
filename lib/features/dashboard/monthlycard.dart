@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../budget/data.dart';
 
 // Configurable parameters
@@ -128,7 +127,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 child: Padding(
                   padding: EdgeInsets.only(left: 0),
                   child: Text(categoryTitle,
-                      style: TextStyle(fontWeight: FontWeight.normal, color: Colors.white)),
+                      style: TextStyle(fontWeight: FontWeight.w600, color: Colors.white)),
                 ),
               ),
               Expanded(
@@ -254,7 +253,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
               child: Text(
                 name,
                 style: TextStyle(
-                    fontWeight: isTotal ? FontWeight.bold : FontWeight.normal),
+                    fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal),
               ),
             ),
           ),
@@ -265,7 +264,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
               _formatNumber(tracked),
               textAlign: TextAlign.center,
               style: TextStyle(
-                  fontWeight: isTotal ? FontWeight.bold : FontWeight.normal),
+                  fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal),
             ),
           ),
           // Budget (editable if not total)
@@ -275,7 +274,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 ? Text(
                     _formatNumber(budget),
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontWeight: FontWeight.bold),
+                    style: const TextStyle(fontWeight: FontWeight.w600),
                   )
                 : GestureDetector(
                     onTap: onBudgetTap,
@@ -289,7 +288,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                                       decimal: true),
                               textAlign: TextAlign.center,
                               style: const TextStyle(
-                                fontWeight: FontWeight.bold,
+                                fontWeight: FontWeight.w600,
                               ),
                               decoration: InputDecoration(
                                 isDense: true,
@@ -323,7 +322,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 '${percent.toStringAsFixed(0)}%',
                 textAlign: TextAlign.center,
                 style: TextStyle(
-                  fontWeight: FontWeight.bold,
+                  fontWeight: FontWeight.normal,
                   color: Colors.black,
                 ),
               ),
@@ -357,20 +356,22 @@ class _MonthlyCardState extends State<MonthlyCard> {
   /// A small helper widget for the month label; uses a dropdown to select the month.
   Widget _monthSelector() {
     return Container(
-      padding: EdgeInsets.symmetric(vertical: 0, horizontal: kPadding),
+      padding: EdgeInsets.symmetric(vertical: 4, horizontal: kPadding),
       color: const Color(0xFF1E2B4C), // dark navy
       child: Row(
         children: [
           const Text(
             'Breakdown – ',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
           ),
           DropdownButton<int>(
             value: _monthIndex,
             dropdownColor: const Color(0xFF1E2B4C),
             style: const TextStyle(
-                color: Colors.white, fontWeight: FontWeight.bold),
+                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
             underline: Container(),
+            isDense: true,
+            padding: EdgeInsets.zero,
             onChanged: (int? newValue) {
               if (newValue != null) {
                 if (_isEditing) {
@@ -384,13 +385,13 @@ class _MonthlyCardState extends State<MonthlyCard> {
             items: List.generate(12, (index) {
               return DropdownMenuItem<int>(
                 value: index,
-                child: Text(months[index]),
+                child: Text(months[index], style: TextStyle(fontSize: 14)),
               );
             }),
           ),
           const Text(
             ' 2025',
-            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
           ),
         ],
       ),

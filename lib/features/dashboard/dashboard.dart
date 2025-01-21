@@ -4,11 +4,7 @@ import 'package:finance_manager/features/dashboard/categorycard.dart';
 import 'package:finance_manager/features/dashboard/figure.dart';
 import 'package:finance_manager/features/dashboard/monthlycard.dart';
 
-// Example color approximations – feel free to adjust
-const Color kDarkNavy = Color(0xFF1E2B4C);
-const Color kGreen = Color(0xFF26A86D);
-const Color kPink = Color(0xFFFE1684);
-const Color kBlue = Color(0xFF3285F3);
+
 const double spaceXBetweenSummary = 32.0;
 const double spaceYBetweenSummary = 16.0;
 class DashboardPage extends StatelessWidget {
@@ -44,8 +40,7 @@ class DashboardPage extends StatelessWidget {
                         children: [
                           const SizedBox(height: 4),
                           Container(
-                            padding: EdgeInsets.symmetric(
-                                vertical: 14, horizontal: 8),
+                          padding: EdgeInsets.symmetric(vertical: 6, horizontal: kPadding),
                             color: const Color(0xFF1E2B4C), // dark navy
                             child: Row(
                               children: [
@@ -53,7 +48,8 @@ class DashboardPage extends StatelessWidget {
                                   'Summary - 2025',
                                   style: TextStyle(
                                       color: Colors.white,
-                                      fontWeight: FontWeight.bold),
+                                      fontWeight: FontWeight.w600,
+                                      fontSize: 14),
                                 )
                               ],
                             ),
@@ -64,7 +60,7 @@ class DashboardPage extends StatelessWidget {
                                 child: CategoryCard(
                                   title: 'Income',
                                   items: BudgetData.incomeItems,
-                                  baseColor: kGreen,
+                                  baseColor: BudgetData.kGreen,
                                 ),
                               ),
                               SizedBox(width: spaceXBetweenSummary),
@@ -89,7 +85,7 @@ class DashboardPage extends StatelessWidget {
                                 child: CategoryCard(
                                   title: 'Expenses',
                                   items: BudgetData.expenseItems,
-                                  baseColor: kPink,
+                                  baseColor: BudgetData.kPink,
                                 ),
                               ),
                               SizedBox(width: spaceXBetweenSummary),
@@ -97,7 +93,7 @@ class DashboardPage extends StatelessWidget {
                                 child: CategoryCard(
                                   title: 'Savings',
                                   items: BudgetData.savingsItems,
-                                  baseColor: kBlue,
+                                  baseColor: BudgetData.kBlue,
                                 ),
                               ),
                             ],

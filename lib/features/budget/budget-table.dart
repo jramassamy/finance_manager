@@ -143,7 +143,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                         widget.title,
                         style: TextStyle(
                           fontSize: kHeaderFontSize,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w600,
                           color: Colors.white,
                         ),
                       ),
@@ -200,7 +200,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
-        border: Border(bottom: BorderSide(color: Colors.grey, width: kRowSpacing)),
+        border: Border(bottom: BorderSide(color: Colors.grey[500]!, width: kRowSpacing)),
       ),
       child: Row(
         children: [
@@ -212,7 +212,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                 item.name,
                 style: TextStyle(
                     fontSize: kCellFontSize,
-                    fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
+                    fontWeight: isBold ? FontWeight.w600 : FontWeight.normal),
               ),
             ),
           ),
@@ -224,7 +224,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
               flex: 2,
               child: Container(
                 decoration: BoxDecoration(
-                  border: Border(left: BorderSide(color: Colors.grey, width: kRowSpacing)),
+                  border: Border(left: BorderSide(color: Colors.grey[500]!, width: kRowSpacing)),
                 ),
                 child: InkWell(
                   onTap: isBold ? null : () => _startEditing(item, index),
@@ -251,7 +251,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                             style: TextStyle(
                               fontSize: kCellFontSize,
                               fontWeight:
-                                  isBold ? FontWeight.bold : FontWeight.normal,
+                                  isBold ? FontWeight.w600 : FontWeight.normal,
                             ),
                           ),
                   ),
@@ -272,7 +272,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                   textAlign: TextAlign.right,
                   style: TextStyle(
                       fontSize: kCellFontSize,
-                      fontWeight: isBold ? FontWeight.bold : FontWeight.normal),
+                      fontWeight: isBold ? FontWeight.w600 : FontWeight.normal),
                 ),
               ),
             ),

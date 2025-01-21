@@ -2,12 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:finance_manager/features/budget/data.dart';
 import 'package:finance_manager/features/budget/budget-table.dart';
 
-// Example color approximations – feel free to adjust to match the image
-const Color kDarkNavy = Color(0xFF1E2B4C);
-const Color kGreen = Color(0xFF26A86D);
-const Color kPink = Color(0xFFFE1684);
-const Color kBlue = Color(0xFF3285F3);
-
 class BudgetPage extends StatelessWidget {
   const BudgetPage({super.key});
 
@@ -29,7 +23,7 @@ class BudgetPage extends StatelessWidget {
                         // INCOME SECTION
                         BudgetTableSection(
                           title: 'Income',
-                          backgroundColor: kGreen,
+                          backgroundColor: BudgetData.kGreen,
                           items: BudgetData.incomeItems,
                           isExpanded: true,
                         ),
@@ -39,7 +33,7 @@ class BudgetPage extends StatelessWidget {
                         // SAVINGS SECTION
                         BudgetTableSection(
                           title: 'Savings',
-                          backgroundColor: kBlue,
+                          backgroundColor: BudgetData.kBlue,
                           items: BudgetData.savingsItems,
                           isExpanded: true,
                         ),
@@ -49,7 +43,7 @@ class BudgetPage extends StatelessWidget {
                         // EXPENSES SECTION
                         BudgetTableSection(
                           title: 'Expenses',
-                          backgroundColor: kPink,
+                          backgroundColor: BudgetData.kPink,
                           items: BudgetData.expenseItems,
                           isExpanded: false,
                         ),
@@ -58,8 +52,8 @@ class BudgetPage extends StatelessWidget {
 
                         // REMAINING SECTION
                         BudgetTableSection(
-                          title: 'Remaining to Invest',
-                          backgroundColor: kDarkNavy,
+                          title: '€ to Invest',
+                          backgroundColor: BudgetData.kDarkNavy,
                           items: BudgetData.remainingItems,
                           isExpanded: false,
                         ),

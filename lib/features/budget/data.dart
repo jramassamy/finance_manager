@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:download/download.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:flutter/material.dart';
 
 
 final List<String> months = [
@@ -56,6 +57,11 @@ class BudgetData {
   static List<BudgetItem> expenseItems = [];
   static List<BudgetItem> savingsItems = [];
 
+  // Example color approximations – feel free to adjust
+    static Color kDarkNavy = Color.fromRGBO(30, 43, 76, 1);
+    static Color kGreen = Color.fromRGBO(38, 168, 109, 1);
+    static Color kPink = Color.fromRGBO(254, 22, 132, 1);
+    static Color kBlue = Color.fromRGBO(50, 133, 243, 1);
 
   // Default data with everything set to 1000
   static final List<BudgetItem> _defaultIncomeItems = [
