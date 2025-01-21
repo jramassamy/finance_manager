@@ -65,28 +65,28 @@ class BudgetData {
 
   // Default data with everything set to 1000
   static final List<BudgetItem> _defaultIncomeItems = [
-    BudgetItem(name: 'Employment (Net)', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Side Hustle (Net)', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Dividends', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
+    BudgetItem(name: 'Employment (Net)', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Side Hustle (Net)', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Dividends', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
   ];
 
   static final List<BudgetItem> _defaultExpenseItems = [
-    BudgetItem(name: 'Housing', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Utilities', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Groceries', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Transportation', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Insurances', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Clothing', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Body Care & Medicine', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Media', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Fun & Vacation', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
+    BudgetItem(name: 'Housing', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Utilities', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Groceries', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Transportation', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Insurances', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Clothing', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Body Care & Medicine', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Media', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Fun & Vacation', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
   ];
 
   static final List<BudgetItem> _defaultSavingsItems = [
-    BudgetItem(name: 'Safety Net', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Rebalancing', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Actions', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
-    BudgetItem(name: 'Crypto', monthly: List.filled(12, 1000), budget: List.filled(12, 1000)),
+    BudgetItem(name: 'Safety Net', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Rebalancing', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Actions', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
+    BudgetItem(name: 'Crypto', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
   ];
 
   // Getters for computed items
