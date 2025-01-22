@@ -26,15 +26,15 @@ class DashboardPage extends StatelessWidget {
                   children: [
                     // Monthly card on left
                     const Expanded(
-                      flex: 2,
+                      flex: 1,
                       child: MonthlyCard(),
                     ),
 
                     const SizedBox(width: 24),
 
-                    // Four items arranged in two rows on right
+                    // Four items arranged in single column on right
                     Expanded(
-                      flex: 3,
+                      flex: 1,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
@@ -54,47 +54,34 @@ class DashboardPage extends StatelessWidget {
                               ],
                             ),
                           ),
-                          // const SizedBox(height: 42),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: CategoryCard(
-                                  title: 'Income',
-                                  items: BudgetData.incomeItems,
-                                  baseColor: BudgetData.kGreen,
-                                ),
-                              ),
-                              SizedBox(width: spaceXBetweenSummary),
-                              Expanded(
-                                child: FigureCard(),
-                              ),
-                            ],
+                          CategoryCard(
+                            title: 'Income',
+                            items: BudgetData.incomeItems,
+                            baseColor: BudgetData.kGreen,
                           ),
                           const SizedBox(height: spaceYBetweenSummary),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: CategoryCard(
-                                  title: 'Expenses',
-                                  items: BudgetData.expenseItems,
-                                  baseColor: BudgetData.kPink,
-                                ),
-                              ),
-                              SizedBox(width: spaceXBetweenSummary),
-                              Expanded(
-                                child: CategoryCard(
-                                  title: 'Savings',
-                                  items: BudgetData.savingsItems,
-                                  baseColor: BudgetData.kBlue,
-                                ),
-                              ),
-                            ],
+                          const SizedBox(height: spaceYBetweenSummary),
+                          CategoryCard(
+                            title: 'Expenses',
+                            items: BudgetData.expenseItems,
+                            baseColor: BudgetData.kPink,
+                          ),
+                          const SizedBox(height: spaceYBetweenSummary),
+                          CategoryCard(
+                            title: 'Savings',
+                            items: BudgetData.savingsItems,
+                            baseColor: BudgetData.kBlue,
                           ),
                         ],
                       ),
                     ),
                   ],
                 ),
+                SizedBox(
+                  width: double.infinity,
+                  child: FigureCard(),
+                ),
+
               ],
             ),
           ),

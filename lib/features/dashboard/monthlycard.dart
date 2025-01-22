@@ -178,50 +178,49 @@ class _MonthlyCardState extends State<MonthlyCard> {
             ],
           ),
         ),
-        // Rows + total row
-        // Use a ListView.builder for performance:
-        ListView.builder(
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemCount: items.length + 1, // +1 for the total row
-          itemBuilder: (context, index) {
-            // If it's the last index, build the "Total" row
-            if (index == items.length) {
+        // Scrollable rows container with fixed height
+        Container(
+          constraints: BoxConstraints(
+            maxHeight: (29.5) * 8, // Max height for 8 rows
+          ),
+          child: ListView.builder(
+            shrinkWrap: true,
+            physics: const AlwaysScrollableScrollPhysics(),
+            itemCount: items.length,
+            itemBuilder: (context, index) {
+              final item = items[index];
+              final tracked = item.monthly[_monthIndex].toDouble();
+              final budget = item.budget[_monthIndex];
+
               return _buildDataRow(
-                name: 'Total',
-                tracked: totalTracked,
-                budget: totalBudget,
-                onBudgetTap: null, // total row is read-only
-                isTotal: true,
+                name: item.name,
+                tracked: tracked,
+                budget: budget.toDouble(),
+                onBudgetTap: () {
+                  _startEditing(item, index, categoryTitle, budget.toDouble());
+                },
+                isTotal: false,
                 color: Colors.white,
-                borderColor: Colors.grey.shade400,
+                borderColor: Colors.white,
                 baseColor: headerColor,
                 rowIndex: index,
                 category: categoryTitle,
               );
-            }
-
-            // Otherwise, build normal row
-            final item = items[index];
-            final tracked = item.monthly[_monthIndex].toDouble();
-            final budget = item.budget[_monthIndex];
-
-            return _buildDataRow(
-              name: item.name,
-              tracked: tracked,
-              budget: budget.toDouble(),
-              onBudgetTap: () {
-                _startEditing(item, index, categoryTitle, budget.toDouble());
-              },
-              isTotal: false,
-              color: Colors.white,
-              borderColor: Colors.white,
-              baseColor: headerColor,
-              // color: headerColor.withOpacity(0.1),
-              rowIndex: index,
-              category: categoryTitle,
-            );
-          },
+            },
+          ),
+        ),
+        // Total row (always visible at bottom)
+        _buildDataRow(
+          name: 'Total',
+          tracked: totalTracked,
+          budget: totalBudget,
+          onBudgetTap: null,
+          isTotal: true,
+          color: Colors.white,
+          borderColor: Colors.grey.shade400,
+          baseColor: headerColor,
+          rowIndex: items.length,
+          category: categoryTitle,
         ),
       ],
     );

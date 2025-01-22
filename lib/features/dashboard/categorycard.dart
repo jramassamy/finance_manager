@@ -102,7 +102,7 @@ class CategoryCard extends StatelessWidget {
       children: [
         // Scrollable items section
         SizedBox(
-          height: 28 * 5, // Height for 3 items (28 * 3)
+          height: 28 * 3, // Height for 3 items (28 * 3)
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
