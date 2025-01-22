@@ -124,7 +124,7 @@ class CategoryCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          Text(items[i].name.length > 24 ? '${items[i].name.substring(0, 24)}...' : items[i].name),
+                          Text(items[i].name.length > 15 ? '${items[i].name.substring(0, 15)}...' : items[i].name),
                         ],
                       ),
                       Text(_formatNumber(items[i]

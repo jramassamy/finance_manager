@@ -270,7 +270,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 message: name,
                 preferBelow: true,
                 child: Text(
-                  name.length > 17 ? '${name.substring(0, 17)}...' : name,
+                  name.length > 15 ? '${name.substring(0, 15)}...' : name,
                   style: TextStyle(
                       fontWeight:
                           isTotal ? FontWeight.w600 : FontWeight.normal),

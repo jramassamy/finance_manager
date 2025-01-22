@@ -290,7 +290,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                 message: item.name,
                 preferBelow: true,
                 child: Text(
-                  item.name.length > 24 ? '${item.name.substring(0, 24)}...' : item.name,
+                  item.name.length > 15 ? '${item.name.substring(0, 15)}...' : item.name,
                   style: TextStyle(
                       fontSize: kCellFontSize,
                       fontWeight: isBold ? FontWeight.w600 : FontWeight.normal),
