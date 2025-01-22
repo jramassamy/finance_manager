@@ -194,7 +194,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 onBudgetTap: null, // total row is read-only
                 isTotal: true,
                 color: Colors.white,
-                borderColor: Colors.grey.shade500,
+                borderColor: Colors.grey.shade400,
                 baseColor: headerColor,
                 rowIndex: index,
                 category: categoryTitle,
@@ -257,8 +257,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
           top: BorderSide(color: borderColor),
         ),
       ),
-      padding:
-          EdgeInsets.symmetric(vertical: kPadding / 4, horizontal: kPadding),
+      margin: isTotal ? EdgeInsets.only(top: 4) : EdgeInsets.zero,
+      padding: isTotal ? EdgeInsets.only(top: kPadding / 2, bottom: kPadding, left: kPadding, right: kPadding) : EdgeInsets.symmetric(vertical: kPadding / 4, horizontal: kPadding),
       child: Row(
         children: [
           // Name
@@ -382,11 +382,6 @@ class _MonthlyCardState extends State<MonthlyCard> {
       color: const Color(0xFF1E2B4C), // dark navy
       child: Row(
         children: [
-          const Text(
-            'Breakdown – ',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
-          ),
           DropdownButton<int>(
             value: _monthIndex,
             dropdownColor: const Color(0xFF1E2B4C),
@@ -411,12 +406,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 child: Text(months[index], style: TextStyle(fontSize: 14)),
               );
             }),
-          ),
-          const Text(
-            ' 2025',
-            style: TextStyle(
-                color: Colors.white, fontWeight: FontWeight.w600, fontSize: 14),
-          ),
+          )
         ],
       ),
     );
@@ -442,7 +432,12 @@ class _MonthlyCardState extends State<MonthlyCard> {
           }
         },
         child: Card(
-          elevation: 4,
+          elevation: 0,
+          color: Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.zero,
+            side: BorderSide.none,
+          ),
           margin: EdgeInsets.all(kMargin),
           child: SingleChildScrollView(
             child: Column(

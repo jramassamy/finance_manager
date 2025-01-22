@@ -6,7 +6,7 @@ import 'package:finance_manager/features/dashboard/monthlycard.dart';
 
 
 const double spaceXBetweenSummary = 32.0;
-const double spaceYBetweenSummary = 16.0;
+const double spaceYBetweenSummary = 0.0;
 class DashboardPage extends StatelessWidget {
   const DashboardPage({super.key});
 
@@ -45,7 +45,7 @@ class DashboardPage extends StatelessWidget {
                             child: Row(
                               children: [
                                 const Text(
-                                  'Summary - 2025',
+                                  'Summary 2025',
                                   style: TextStyle(
                                       color: Colors.white,
                                       fontWeight: FontWeight.w600,
@@ -54,6 +54,7 @@ class DashboardPage extends StatelessWidget {
                               ],
                             ),
                           ),
+                          // const SizedBox(height: 42),
                           Row(
                             children: [
                               Expanded(
@@ -65,16 +66,7 @@ class DashboardPage extends StatelessWidget {
                               ),
                               SizedBox(width: spaceXBetweenSummary),
                               Expanded(
-                                child: Container(
-                                  height: 100,
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey[200],
-                                    borderRadius: BorderRadius.circular(8),
-                                  ),
-                                  child: const Center(
-                                    child: Text('Placeholder Item'),
-                                  ),
-                                ),
+                                child: FigureCard(),
                               ),
                             ],
                           ),

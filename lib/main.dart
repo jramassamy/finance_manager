@@ -32,5 +32,4 @@ class MainApp extends StatelessWidget {
 }
 
 class MainAppState extends ChangeNotifier {
-  var filter = 'test';
 }
