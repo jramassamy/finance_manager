@@ -124,13 +124,13 @@ class CategoryCard extends StatelessWidget {
                             ),
                           ),
                           const SizedBox(width: 6),
-                          Text(items[i].name),
+                          Text(items[i].name.length > 24 ? '${items[i].name.substring(0, 24)}...' : items[i].name),
                         ],
                       ),
                       Text(_formatNumber(items[i]
                           .monthly
                           .fold(0.0, (sum, m) => sum + m)
-                          .toInt())),
+                          .toDouble())),
                     ],
                   ),
                   const SizedBox(height: 8),
@@ -178,8 +178,11 @@ class CategoryCard extends StatelessWidget {
   }
 
   // Format number with comma separators (e.g., 1,234,567)
-  String _formatNumber(int number) {
+  String _formatNumber(double value) {
+    final number = value.toInt();
     return number.toString().replaceAllMapped(
-        RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]} ');
+          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+          (Match m) => '${m[1]} ',
+        );
   }
 }

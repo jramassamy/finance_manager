@@ -270,7 +270,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 message: name,
                 preferBelow: true,
                 child: Text(
-                  name.length > 20 ? '${name.substring(0, 20)}...' : name,
+                  name.length > 17 ? '${name.substring(0, 17)}...' : name,
                   style: TextStyle(
                       fontWeight:
                           isTotal ? FontWeight.w600 : FontWeight.normal),
@@ -304,6 +304,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                       child: isThisRowEditing
                           ? TextField(
                               controller: _editingController,
+                              autofocus: true,
                               keyboardType:
                                   const TextInputType.numberWithOptions(
                                       decimal: true),
@@ -423,19 +424,19 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
   @override
   Widget build(BuildContext context) {
-    return KeyboardListener(
+      return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (KeyEvent event) {
-        if (event is KeyDownEvent &&
-            event.logicalKey == LogicalKeyboardKey.escape &&
+        debugPrint('Escape key pressed');
+        if (event is KeyDownEvent && 
+            event.logicalKey == LogicalKeyboardKey.escape && 
             _isEditing) {
-          _cancelEditing(); // Using cancel instead of commit for Escape key
+          _commitEditing();
         }
       },
       child: GestureDetector(
         // Tap anywhere outside the TextField to unfocus and commit the changes
         onTap: () {
-          FocusScope.of(context).unfocus();
           if (_isEditing) {
             _commitEditing();
           }
