@@ -163,7 +163,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
               ),
               Expanded(
                 flex: 2,
-                child: Text('Remaining',
+                child: Text('Remain.',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontWeight: FontWeight.normal, color: Colors.white)),
