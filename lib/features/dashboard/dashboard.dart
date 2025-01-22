@@ -26,7 +26,7 @@ class DashboardPage extends StatelessWidget {
                   children: [
                     // Monthly card on left
                     const Expanded(
-                      flex: 1,
+                      flex: 10,
                       child: MonthlyCard(),
                     ),
 
@@ -34,7 +34,7 @@ class DashboardPage extends StatelessWidget {
 
                     // Four items arranged in single column on right
                     Expanded(
-                      flex: 1,
+                      flex: 8,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
