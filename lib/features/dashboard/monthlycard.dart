@@ -26,6 +26,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   int? _editingRowIndex;
   String? _editingCategory;
   String? _originalValue;
+  String? _editingField; // 'tracked' or 'budget'
   final TextEditingController _editingController = TextEditingController();
 
   @override
@@ -36,11 +37,12 @@ class _MonthlyCardState extends State<MonthlyCard> {
   /// Begin editing a particular (item, rowIndex, category).
   /// If already editing another cell, commit that first.
   void _startEditing(
-      BudgetItem item, int rowIndex, String category, double value) {
+      BudgetItem item, int rowIndex, String category, double value, String field) {
     if (_isEditing &&
         (_editingItem != item ||
             _editingRowIndex != rowIndex ||
-            _editingCategory != category)) {
+            _editingCategory != category ||
+            _editingField != field)) {
       _commitEditing(); // commit/cancel the previous editing
     }
 
@@ -49,9 +51,9 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingItem = item;
       _editingRowIndex = rowIndex;
       _editingCategory = category;
+      _editingField = field;
       _originalValue = value.toString();
       _editingController.text = '';
-      // _editingController.text = _originalValue!;
     });
   }
 
@@ -69,24 +71,34 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
     setState(() {
       if (_editingCategory == 'Income') {
-        BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] =
-            newValue;
+        if (_editingField == 'tracked') {
+          BudgetData.incomeItems[_editingRowIndex!].monthly[_monthIndex] = newValue;
+        } else {
+          BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+        }
       } else if (_editingCategory == 'Expenses') {
-        BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] =
-            newValue;
+        if (_editingField == 'tracked') {
+          BudgetData.expenseItems[_editingRowIndex!].monthly[_monthIndex] = newValue;
+        } else {
+          BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+        }
       } else if (_editingCategory == 'Savings') {
-        BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] =
-            newValue;
+        if (_editingField == 'tracked') {
+          BudgetData.savingsItems[_editingRowIndex!].monthly[_monthIndex] = newValue;
+        } else {
+          BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+        }
       }
 
       // Save changes
       BudgetData.saveData();
-
+      BudgetData.notifyDataChanged(); 
       // Reset editing state
       _isEditing = false;
       _editingItem = null;
       _editingRowIndex = null;
       _editingCategory = null;
+      _editingField = null;
       _originalValue = null;
       _editingController.clear();
     });
@@ -100,6 +112,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingItem = null;
       _editingRowIndex = null;
       _editingCategory = null;
+      _editingField = null;
       _originalValue = null;
       _editingController.clear();
     });
@@ -149,7 +162,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
               ),
               Expanded(
                 flex: 2,
-                child: Text('Budget',
+                child: Text('Limit',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                         fontWeight: FontWeight.normal, color: Colors.white)),
@@ -196,8 +209,11 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 name: item.name,
                 tracked: tracked,
                 budget: budget.toDouble(),
+                onTrackedTap: () {
+                  _startEditing(item, index, categoryTitle, tracked, 'tracked');
+                },
                 onBudgetTap: () {
-                  _startEditing(item, index, categoryTitle, budget.toDouble());
+                  _startEditing(item, index, categoryTitle, budget.toDouble(), 'budget');
                 },
                 isTotal: false,
                 color: Colors.white,
@@ -214,6 +230,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
           name: 'Total',
           tracked: totalTracked,
           budget: totalBudget,
+          onTrackedTap: null,
           onBudgetTap: null,
           isTotal: true,
           color: Colors.white,
@@ -232,6 +249,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
     required String name,
     required double tracked,
     required double budget,
+    required VoidCallback? onTrackedTap,
     required VoidCallback? onBudgetTap,
     required bool isTotal,
     required Color color,
@@ -277,15 +295,44 @@ class _MonthlyCardState extends State<MonthlyCard> {
               ),
             ),
           ),
-          // Tracked
+          // Tracked (editable if not total)
           Expanded(
             flex: 2,
-            child: Text(
-              _formatNumber(tracked),
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                  fontWeight: isTotal ? FontWeight.w600 : FontWeight.normal),
-            ),
+            child: isTotal
+                ? Text(
+                    _formatNumber(tracked),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  )
+                : GestureDetector(
+                    onTap: onTrackedTap,
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: kPadding / 4),
+                      child: isThisRowEditing && _editingField == 'tracked'
+                          ? TextField(
+                              controller: _editingController,
+                              autofocus: true,
+                              keyboardType:
+                                  const TextInputType.numberWithOptions(
+                                      decimal: true),
+                              textAlign: TextAlign.center,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w600,
+                              ),
+                              decoration: InputDecoration(
+                                isDense: true,
+                                contentPadding: EdgeInsets.symmetric(
+                                    vertical: kPadding / 2),
+                                border: InputBorder.none,
+                              ),
+                              onSubmitted: (_) => _commitEditing(),
+                            )
+                          : Text(
+                              _formatNumber(tracked),
+                              textAlign: TextAlign.center,
+                            ),
+                    ),
+                  ),
           ),
           // Budget (editable if not total)
           Expanded(
@@ -300,7 +347,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                     onTap: onBudgetTap,
                     child: Padding(
                       padding: EdgeInsets.symmetric(vertical: kPadding / 4),
-                      child: isThisRowEditing
+                      child: isThisRowEditing && _editingField == 'budget'
                           ? TextField(
                               controller: _editingController,
                               autofocus: true,
@@ -485,6 +532,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   void dispose() {
     _editingController.dispose();
     _focusNode.dispose();
+    BudgetData.dispose();
     super.dispose();
   }
 }

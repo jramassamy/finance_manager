@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'package:download/download.dart';
@@ -53,6 +54,9 @@ class BudgetData {
   static const String fileName = 'budget_data.json';
   static const String downloadFileName = 'budget_data_export.json';
 
+  static final _dataChangeController = StreamController<void>.broadcast();
+  static Stream<void> get onDataChanged => _dataChangeController.stream;
+  
   static List<BudgetItem> incomeItems = [];
   static List<BudgetItem> expenseItems = [];
   static List<BudgetItem> savingsItems = [];
@@ -213,4 +217,15 @@ class BudgetData {
       return false;
     }
   }
+
+    // Add this method
+  static void notifyDataChanged() {
+    _dataChangeController.add(null);
+  }
+
+  // Don't forget to close the controller when it's no longer needed
+  static void dispose() {
+    _dataChangeController.close();
+  }
+  
 }

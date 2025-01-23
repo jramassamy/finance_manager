@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_manager/features/budget/data.dart';
@@ -11,6 +13,16 @@ class FigureCard extends StatefulWidget {
 
 class FigureCardState extends State<FigureCard> {
   int? touchedIndex;
+
+  @override
+  void initState() {
+    super.initState();
+    BudgetData.onDataChanged.listen((_) {
+      if (mounted) {
+        setState(() {});
+      }
+    });
+  }
 
   Widget _buildLegendItem(Color color, String label) {
     return Row(
