@@ -67,26 +67,39 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingController.text = _originalValue!;
     }
 
-    final newValue = double.tryParse(_editingController.text.trim()) ?? 0.0;
+    String newValue = _editingController.text.trim().replaceAll('=', '');
+    num parsed;
+    
+    // Check if the input contains arithmetic operators
+    if (newValue.contains(RegExp(r'[\+\-\*\/]'))) {
+      // Remove any equal signs from the expression
+      parsed = _evaluateExpression(newValue);
+    } else {
+      parsed = num.tryParse(newValue) ?? 0;
+    }
+
+    if (parsed is double) {
+      parsed = double.parse(parsed.toStringAsFixed(2));
+    }
 
     setState(() {
       if (_editingCategory == 'Income') {
         if (_editingField == 'tracked') {
-          BudgetData.incomeItems[_editingRowIndex!].monthly[_monthIndex] = newValue;
+          BudgetData.incomeItems[_editingRowIndex!].monthly[_monthIndex] = parsed;
         } else {
-          BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+          BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] = parsed;
         }
       } else if (_editingCategory == 'Expenses') {
         if (_editingField == 'tracked') {
-          BudgetData.expenseItems[_editingRowIndex!].monthly[_monthIndex] = newValue;
+          BudgetData.expenseItems[_editingRowIndex!].monthly[_monthIndex] = parsed;
         } else {
-          BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+          BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] = parsed;
         }
       } else if (_editingCategory == 'Savings') {
         if (_editingField == 'tracked') {
-          BudgetData.savingsItems[_editingRowIndex!].monthly[_monthIndex] = newValue;
+          BudgetData.savingsItems[_editingRowIndex!].monthly[_monthIndex] = parsed;
         } else {
-          BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] = newValue;
+          BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] = parsed;
         }
       }
 
@@ -102,6 +115,56 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _originalValue = null;
       _editingController.clear();
     });
+  }
+
+  num _evaluateExpression(String expression) {
+    // Remove all spaces from the expression
+    expression = expression.replaceAll(' ', '');
+    
+    // Check if expression contains any invalid characters
+    if (!RegExp(r'^[0-9\.\+\-\*\/]+$').hasMatch(expression)) {
+      return 0;
+    }
+
+    // Check for consecutive operators
+    if (RegExp(r'[\+\-\*\/]{2,}').hasMatch(expression)) {
+      return 0; 
+    }
+
+    try {
+      // First handle multiplication and division
+      while (expression.contains(RegExp(r'[\*\/]'))) {
+        expression = expression.replaceAllMapped(
+          RegExp(r'(\d*\.?\d+)[\*\/](\d*\.?\d+)'),
+          (match) {
+            final num a = num.parse(match[1]!);
+            final num b = num.parse(match[2]!);
+            if (match[0]!.contains('*')) {
+              return (a * b).toString();
+            } else {
+              return (a / b).toString();
+            }
+          }
+        );
+      }
+
+      // Then handle addition and subtraction
+      final numbers = expression.split(RegExp(r'[\+\-]'));
+      final operators = expression.split(RegExp(r'[0-9\.]+')).where((op) => op.isNotEmpty).toList();
+      
+      num result = num.parse(numbers[0]);
+      for (int i = 0; i < operators.length; i++) {
+        final nextNum = num.parse(numbers[i + 1]);
+        if (operators[i] == '+') {
+          result += nextNum;
+        } else if (operators[i] == '-') {
+          result -= nextNum;
+        }
+      }
+      return result;
+    } catch (e) {
+      return 0;
+    }
   }
 
   /// Cancel editing without committing changes.
@@ -132,6 +195,9 @@ class _MonthlyCardState extends State<MonthlyCard> {
       totalTracked += item.monthly[_monthIndex];
       totalBudget += item.budget[_monthIndex];
     }
+
+    totalTracked = double.parse(totalTracked.toStringAsFixed(2));
+    totalBudget = double.parse(totalBudget.toStringAsFixed(2));
 
     // Build the section
     return Column(
@@ -283,14 +349,46 @@ class _MonthlyCardState extends State<MonthlyCard> {
             flex: 4,
             child: Padding(
               padding: const EdgeInsets.only(left: 0),
-              child: Tooltip(
-                message: name,
-                preferBelow: true,
-                child: Text(
-                  name.length > 15 ? '${name.substring(0, 15)}...' : name,
-                  style: TextStyle(
-                      fontWeight:
-                          isTotal ? FontWeight.w600 : FontWeight.normal),
+              child: GestureDetector(
+                onTap: () {
+                  final overlay = Overlay.of(context);
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+
+                  final entry = OverlayEntry(
+                    builder: (context) => Positioned(
+                      left: position.dx,
+                      top: position.dy + renderBox.size.height,
+                      child: Material(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text(
+                            name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+
+                  overlay.insert(entry);
+                  Future.delayed(const Duration(seconds: 1), () {
+                    entry.remove();
+                  });
+                },
+                child: Tooltip(
+                  message: name,
+                  preferBelow: true,
+                  child: Text(
+                    MediaQuery.of(context).size.width >= 1024 
+                        ? (name.length > 15 ? '${name.substring(0, 15)}...' : name)
+                        : (name.length > 10 ? '${name.substring(0, 10)}.' : name),
+                    style: TextStyle(
+                        fontWeight:
+                            isTotal ? FontWeight.w600 : FontWeight.normal),
+                  ),
                 ),
               ),
             ),
@@ -519,13 +617,17 @@ class _MonthlyCardState extends State<MonthlyCard> {
     );
   }
 
-  /// Format an integer number with spaces every three digits: e.g. 12 345
-  String _formatNumber(double value) {
-    final number = value.toInt();
-    return number.toString().replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]} ',
-        );
+  String _formatNumber(num number) {
+    final String numStr = number.toString();
+    return numStr.endsWith('.0') 
+        ? numStr.substring(0, numStr.length - 2).replaceAllMapped(
+            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+            (match) => '${match[1]} ',
+          )
+        : numStr.replaceAllMapped(
+            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+            (match) => '${match[1]} ',
+          );
   }
 
   @override

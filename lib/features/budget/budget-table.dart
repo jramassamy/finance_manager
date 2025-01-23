@@ -70,6 +70,9 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       for (final item in widget.items) {
         monthTotal += item.monthly[monthIndex];
       }
+
+      monthTotal = double.parse(monthTotal.toStringAsFixed(2));
+
       return monthTotal;
     });
     _totalItem = BudgetItem(name: 'Total', monthly: totalMonthly, budget: totalMonthly);
@@ -286,14 +289,47 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
             flex: 3,
             child: Padding(
               padding: kCellPadding,
-              child: Tooltip(
-                message: item.name,
-                preferBelow: true,
-                child: Text(
-                  item.name.length > 15 ? '${item.name.substring(0, 15)}...' : item.name,
-                  style: TextStyle(
+              child: GestureDetector(
+                onTap: () {
+                  final overlay = Overlay.of(context);
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+
+                  final entry = OverlayEntry(
+                    builder: (context) => Positioned(
+                      left: position.dx,
+                      top: position.dy + renderBox.size.height,
+                      child: Material(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          child: Text(
+                            item.name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+
+                  overlay.insert(entry);
+                  Future.delayed(const Duration(seconds: 1), () {
+                    entry.remove();
+                  });
+                },
+                child: Tooltip(
+                  message: item.name,
+                  preferBelow: true,
+                  child: Text(
+                    MediaQuery.of(context).size.width >= 1024 
+                        ? (item.name.length > 15 ? '${item.name.substring(0, 15)}...' : item.name)
+                        : (item.name.length > 10 ? '${item.name.substring(0, 10)}.' : item.name),
+                    style: TextStyle(
                       fontSize: kCellFontSize,
-                      fontWeight: isBold ? FontWeight.w600 : FontWeight.normal),
+                      fontWeight: isBold ? FontWeight.w600 : FontWeight.normal,
+                    ),
+                  ),
                 ),
               ),
             ),
