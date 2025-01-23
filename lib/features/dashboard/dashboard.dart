@@ -60,7 +60,6 @@ class DashboardPage extends StatelessWidget {
                             baseColor: BudgetData.kGreen,
                           ),
                           const SizedBox(height: spaceYBetweenSummary),
-                          const SizedBox(height: spaceYBetweenSummary),
                           CategoryCard(
                             title: 'Expenses',
                             items: BudgetData.expenseItems,

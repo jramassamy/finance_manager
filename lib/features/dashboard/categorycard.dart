@@ -102,7 +102,7 @@ class CategoryCard extends StatelessWidget {
       children: [
         // Scrollable items section
         SizedBox(
-          height: 28 * 3, // Height for 3 items (28 * 3)
+          height: 28 * 4, // Height for 3 items (28 * 3)
           child: SingleChildScrollView(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -127,10 +127,11 @@ class CategoryCard extends StatelessWidget {
                           Text(items[i].name.length > 15 ? '${items[i].name.substring(0, 15)}...' : items[i].name),
                         ],
                       ),
-                      Text(_formatNumber(items[i]
+                      Text(_formatNumber(
+                        double.parse(items[i]
                           .monthly
                           .fold(0.0, (sum, m) => sum + m)
-                          .toDouble())),
+                          .toStringAsFixed(2)))),
                     ],
                   ),
                   const SizedBox(height: 8),

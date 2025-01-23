@@ -36,8 +36,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
   /// Begin editing a particular (item, rowIndex, category).
   /// If already editing another cell, commit that first.
-  void _startEditing(
-      BudgetItem item, int rowIndex, String category, double value, String field) {
+  void _startEditing(BudgetItem item, int rowIndex, String category,
+      double value, String field) {
     if (_isEditing &&
         (_editingItem != item ||
             _editingRowIndex != rowIndex ||
@@ -69,7 +69,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
     String newValue = _editingController.text.trim().replaceAll('=', '');
     num parsed;
-    
+
     // Check if the input contains arithmetic operators
     if (newValue.contains(RegExp(r'[\+\-\*\/]'))) {
       // Remove any equal signs from the expression
@@ -85,27 +85,33 @@ class _MonthlyCardState extends State<MonthlyCard> {
     setState(() {
       if (_editingCategory == 'Income') {
         if (_editingField == 'tracked') {
-          BudgetData.incomeItems[_editingRowIndex!].monthly[_monthIndex] = parsed;
+          BudgetData.incomeItems[_editingRowIndex!].monthly[_monthIndex] =
+              parsed;
         } else {
-          BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] = parsed;
+          BudgetData.incomeItems[_editingRowIndex!].budget[_monthIndex] =
+              parsed;
         }
       } else if (_editingCategory == 'Expenses') {
         if (_editingField == 'tracked') {
-          BudgetData.expenseItems[_editingRowIndex!].monthly[_monthIndex] = parsed;
+          BudgetData.expenseItems[_editingRowIndex!].monthly[_monthIndex] =
+              parsed;
         } else {
-          BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] = parsed;
+          BudgetData.expenseItems[_editingRowIndex!].budget[_monthIndex] =
+              parsed;
         }
       } else if (_editingCategory == 'Savings') {
         if (_editingField == 'tracked') {
-          BudgetData.savingsItems[_editingRowIndex!].monthly[_monthIndex] = parsed;
+          BudgetData.savingsItems[_editingRowIndex!].monthly[_monthIndex] =
+              parsed;
         } else {
-          BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] = parsed;
+          BudgetData.savingsItems[_editingRowIndex!].budget[_monthIndex] =
+              parsed;
         }
       }
 
       // Save changes
       BudgetData.saveData();
-      BudgetData.notifyDataChanged(); 
+      BudgetData.notifyDataChanged();
       // Reset editing state
       _isEditing = false;
       _editingItem = null;
@@ -120,7 +126,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   num _evaluateExpression(String expression) {
     // Remove all spaces from the expression
     expression = expression.replaceAll(' ', '');
-    
+
     // Check if expression contains any invalid characters
     if (!RegExp(r'^[0-9\.\+\-\*\/]+$').hasMatch(expression)) {
       return 0;
@@ -128,30 +134,31 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
     // Check for consecutive operators
     if (RegExp(r'[\+\-\*\/]{2,}').hasMatch(expression)) {
-      return 0; 
+      return 0;
     }
 
     try {
       // First handle multiplication and division
       while (expression.contains(RegExp(r'[\*\/]'))) {
-        expression = expression.replaceAllMapped(
-          RegExp(r'(\d*\.?\d+)[\*\/](\d*\.?\d+)'),
-          (match) {
-            final num a = num.parse(match[1]!);
-            final num b = num.parse(match[2]!);
-            if (match[0]!.contains('*')) {
-              return (a * b).toString();
-            } else {
-              return (a / b).toString();
-            }
+        expression = expression
+            .replaceAllMapped(RegExp(r'(\d*\.?\d+)[\*\/](\d*\.?\d+)'), (match) {
+          final num a = num.parse(match[1]!);
+          final num b = num.parse(match[2]!);
+          if (match[0]!.contains('*')) {
+            return (a * b).toString();
+          } else {
+            return (a / b).toString();
           }
-        );
+        });
       }
 
       // Then handle addition and subtraction
       final numbers = expression.split(RegExp(r'[\+\-]'));
-      final operators = expression.split(RegExp(r'[0-9\.]+')).where((op) => op.isNotEmpty).toList();
-      
+      final operators = expression
+          .split(RegExp(r'[0-9\.]+'))
+          .where((op) => op.isNotEmpty)
+          .toList();
+
       num result = num.parse(numbers[0]);
       for (int i = 0; i < operators.length; i++) {
         final nextNum = num.parse(numbers[i + 1]);
@@ -268,18 +275,20 @@ class _MonthlyCardState extends State<MonthlyCard> {
             itemCount: items.length,
             itemBuilder: (context, index) {
               final item = items[index];
-              final tracked = item.monthly[_monthIndex].toDouble();
-              final budget = item.budget[_monthIndex];
+              final tracked =
+                  double.parse(item.monthly[_monthIndex].toStringAsFixed(2));
+              final budget =
+                  double.parse(item.budget[_monthIndex].toStringAsFixed(2));
 
               return _buildDataRow(
                 name: item.name,
                 tracked: tracked,
-                budget: budget.toDouble(),
+                budget: budget,
                 onTrackedTap: () {
                   _startEditing(item, index, categoryTitle, tracked, 'tracked');
                 },
                 onBudgetTap: () {
-                  _startEditing(item, index, categoryTitle, budget.toDouble(), 'budget');
+                  _startEditing(item, index, categoryTitle, budget, 'budget');
                 },
                 isTotal: false,
                 color: Colors.white,
@@ -325,8 +334,11 @@ class _MonthlyCardState extends State<MonthlyCard> {
     required String category,
   }) {
     final percent = (budget == 0) ? 0 : (tracked / budget * 100);
-    final double remaining = (tracked <= budget) ? (budget - tracked) : 0;
-    final double excess = (tracked > budget) ? (tracked - budget) : 0;
+    double remaining = (tracked <= budget) ? (budget - tracked) : 0;
+    double excess = (tracked > budget) ? (tracked - budget) : 0;
+
+    remaining = double.parse(remaining.toStringAsFixed(2));
+    excess = double.parse(excess.toStringAsFixed(2));
 
     // Are we editing *this* row right now?
     final bool isThisRowEditing = _isEditing &&
@@ -341,7 +353,13 @@ class _MonthlyCardState extends State<MonthlyCard> {
         ),
       ),
       margin: isTotal ? EdgeInsets.only(top: 4) : EdgeInsets.zero,
-      padding: isTotal ? EdgeInsets.only(top: kPadding / 2, bottom: kPadding, left: kPadding, right: kPadding) : EdgeInsets.symmetric(vertical: kPadding / 4, horizontal: kPadding),
+      padding: isTotal
+          ? EdgeInsets.only(
+              top: kPadding / 2,
+              bottom: kPadding,
+              left: kPadding,
+              right: kPadding)
+          : EdgeInsets.symmetric(vertical: kPadding / 4, horizontal: kPadding),
       child: Row(
         children: [
           // Name
@@ -363,7 +381,8 @@ class _MonthlyCardState extends State<MonthlyCard> {
                         color: Colors.grey[800],
                         borderRadius: BorderRadius.circular(4),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
                           child: Text(
                             name,
                             style: const TextStyle(color: Colors.white),
@@ -382,9 +401,13 @@ class _MonthlyCardState extends State<MonthlyCard> {
                   message: name,
                   preferBelow: true,
                   child: Text(
-                    MediaQuery.of(context).size.width >= 1024 
-                        ? (name.length > 15 ? '${name.substring(0, 15)}...' : name)
-                        : (name.length > 10 ? '${name.substring(0, 10)}.' : name),
+                    MediaQuery.of(context).size.width >= 1024
+                        ? (name.length > 15
+                            ? '${name.substring(0, 15)}...'
+                            : name)
+                        : (name.length > 10
+                            ? '${name.substring(0, 10)}.'
+                            : name),
                     style: TextStyle(
                         fontWeight:
                             isTotal ? FontWeight.w600 : FontWeight.normal),
@@ -519,6 +542,203 @@ class _MonthlyCardState extends State<MonthlyCard> {
     );
   }
 
+  /// Helper that builds the Finance section showing investment potential and patrimony
+  Widget _buildFinanceSection() {
+    // Define the header color for the Finance section
+    final Color headerColor = const Color(0xFF1E2B4C); // dark navy color
+
+    // Calculate totals for each category
+    double totalIncome = 0;
+    double totalExpenses = 0;
+    double totalSavings = 0;
+
+    for (final item in BudgetData.incomeItems) {
+      totalIncome += item.monthly[_monthIndex];
+    }
+    for (final item in BudgetData.expenseItems) {
+      totalExpenses += item.monthly[_monthIndex];
+    }
+    for (final item in BudgetData.savingsItems) {
+      totalSavings += item.monthly[_monthIndex];
+    }
+
+    // Calculate the financial metrics
+    double toInvest = totalIncome - totalExpenses;
+    toInvest = double.parse(toInvest.toStringAsFixed(2));
+    double patrimony = totalIncome + totalSavings - totalExpenses;
+    patrimony = double.parse(patrimony.toStringAsFixed(2));
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Table header row
+        Container(
+          color: headerColor,
+          padding: EdgeInsets.symmetric(
+              vertical: kPadding / 4, horizontal: kPadding),
+          child: Row(
+            children: [
+              Expanded(
+                flex: 4,
+                child: Padding(
+                  padding: EdgeInsets.only(left: 0),
+                  child: Text('Finance',
+                      style: TextStyle(
+                          fontWeight: FontWeight.w600, color: Colors.white)),
+                ),
+              ),
+              Expanded(
+                flex: 2,
+                child: Text('Tracked',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                        fontWeight: FontWeight.normal, color: Colors.white)),
+              ),
+              Expanded(flex: 2, child: Text('')),
+              Expanded(flex: 2, child: Text('')),
+              Expanded(flex: 2, child: Text('')),
+              Expanded(flex: 2, child: Text('')),
+            ],
+          ),
+        ),
+        // To Invest row
+        _buildFinanceRow(
+          name: '€ To Invest',
+          value: toInvest,
+          color: Colors.white,
+          borderColor: Colors.white,
+          baseColor: headerColor, // Add this parameter
+        ),
+        // Patrimony row
+        _buildFinanceRow(
+          name: 'Patrimoine',
+          value: patrimony,
+          color: Colors.white,
+          borderColor: Colors.white,
+          baseColor: headerColor, // Add this parameter
+        ),
+      ],
+    );
+  }
+
+  /// Builds a single row for the finance section
+  Widget _buildFinanceRow(
+      {required String name,
+      required double value,
+      required Color color,
+      required Color borderColor,
+      required Color baseColor}) {
+    return Container(
+      decoration: BoxDecoration(
+        color: color,
+        border: Border(
+          top: BorderSide(color: borderColor),
+        ),
+      ),
+      margin: EdgeInsets.zero,
+      padding:
+          EdgeInsets.symmetric(vertical: kPadding / 4, horizontal: kPadding),
+      child: Row(
+        children: [
+          // Name
+          Expanded(
+            flex: 4,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 0),
+              child: GestureDetector(
+                onTap: () {
+                  final overlay = Overlay.of(context);
+                  final renderBox = context.findRenderObject() as RenderBox;
+                  final position = renderBox.localToGlobal(Offset.zero);
+
+                  final entry = OverlayEntry(
+                    builder: (context) => Positioned(
+                      left: position.dx,
+                      top: position.dy + renderBox.size.height,
+                      child: Material(
+                        color: Colors.grey[800],
+                        borderRadius: BorderRadius.circular(4),
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 8, vertical: 4),
+                          child: Text(
+                            name,
+                            style: const TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+
+                  overlay.insert(entry);
+                  Future.delayed(const Duration(seconds: 1), () {
+                    entry.remove();
+                  });
+                },
+                child: Tooltip(
+                  message: name,
+                  preferBelow: true,
+                  child: Text(
+                    MediaQuery.of(context).size.width >= 1024
+                        ? (name.length > 15
+                            ? '${name.substring(0, 15)}...'
+                            : name)
+                        : (name.length > 10
+                            ? '${name.substring(0, 10)}.'
+                            : name),
+                    style: TextStyle(fontWeight: FontWeight.normal),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Tracked (editable if not total)
+          Expanded(
+              flex: 2,
+              child: Text(
+                _formatNumber(value),
+                textAlign: TextAlign.center,
+                style: const TextStyle(fontWeight: FontWeight.w500),
+              )),
+          // Budget (editable if not total)
+          Expanded(
+            flex: 2,
+            child: Text(
+              '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          // % Completion
+          Expanded(
+            flex: 2,
+            child: Text(
+              '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ), // Remaining
+          Expanded(
+            flex: 2,
+            child: Text(
+              '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          ),
+          Expanded(
+            flex: 2,
+            child: Text(
+              '',
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontWeight: FontWeight.w600),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+
   /// A small helper widget for the month label; uses a dropdown to select the month.
   Widget _monthSelector() {
     return Container(
@@ -558,12 +778,12 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
   @override
   Widget build(BuildContext context) {
-      return KeyboardListener(
+    return KeyboardListener(
       focusNode: _focusNode,
       onKeyEvent: (KeyEvent event) {
         debugPrint('Escape key pressed');
-        if (event is KeyDownEvent && 
-            event.logicalKey == LogicalKeyboardKey.escape && 
+        if (event is KeyDownEvent &&
+            event.logicalKey == LogicalKeyboardKey.escape &&
             _isEditing) {
           _commitEditing();
         }
@@ -609,6 +829,10 @@ class _MonthlyCardState extends State<MonthlyCard> {
                     categoryTitle: 'Savings',
                     headerColor: const Color(0xFF3285F3),
                     items: BudgetData.savingsItems),
+
+                const SizedBox(height: 8),
+
+                _buildFinanceSection()
               ],
             ),
           ),
@@ -619,11 +843,11 @@ class _MonthlyCardState extends State<MonthlyCard> {
 
   String _formatNumber(num number) {
     final String numStr = number.toString();
-    return numStr.endsWith('.0') 
+    return numStr.endsWith('.0')
         ? numStr.substring(0, numStr.length - 2).replaceAllMapped(
-            RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-            (match) => '${match[1]} ',
-          )
+              RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+              (match) => '${match[1]} ',
+            )
         : numStr.replaceAllMapped(
             RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
             (match) => '${match[1]} ',

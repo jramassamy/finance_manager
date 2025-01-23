@@ -26,6 +26,7 @@ class BudgetPage extends StatelessWidget {
                           backgroundColor: BudgetData.kGreen,
                           items: BudgetData.incomeItems,
                           isExpanded: true,
+                          allowEditing: true,
                         ),
 
                         const SizedBox(height: 32),
@@ -36,6 +37,7 @@ class BudgetPage extends StatelessWidget {
                           backgroundColor: BudgetData.kBlue,
                           items: BudgetData.savingsItems,
                           isExpanded: true,
+                          allowEditing: true,
                         ),
 
                         const SizedBox(height: 32),
@@ -46,6 +48,7 @@ class BudgetPage extends StatelessWidget {
                           backgroundColor: BudgetData.kPink,
                           items: BudgetData.expenseItems,
                           isExpanded: false,
+                          allowEditing: true,
                         ),
 
                         const SizedBox(height: 32),
@@ -56,6 +59,7 @@ class BudgetPage extends StatelessWidget {
                           backgroundColor: BudgetData.kDarkNavy,
                           items: BudgetData.remainingItems,
                           isExpanded: false,
+                          allowEditing: false,
                         ),
                         const SizedBox(height: 32),
 
@@ -65,6 +69,7 @@ class BudgetPage extends StatelessWidget {
                           backgroundColor: const Color.fromARGB(255, 12, 122, 108),
                           items: BudgetData.patrimoineItems,
                           isExpanded: false,
+                          allowEditing: false,
                         ),
                       ],
                     ),

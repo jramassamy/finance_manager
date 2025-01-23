@@ -16,13 +16,14 @@ class BudgetTableSection extends StatefulWidget {
   final Color backgroundColor;
   final List<BudgetItem> items;
   final bool isExpanded;
-
+  final bool allowEditing;
   const BudgetTableSection({
     super.key,
     required this.title,
     required this.backgroundColor,
     required this.items,
     required this.isExpanded,
+    required this.allowEditing
   });
 
   @override
@@ -129,7 +130,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
   }
 
   void _commitEditing() {
-    if (!_isEditing || _editingItem == null || _editingIndex == null) return;
+    if (!_isEditing || _editingItem == null || _editingIndex == null || !widget.allowEditing) return;
 
     if(_editingController.text.trim().isEmpty) {
       _editingController.text = _originalValue!;
@@ -166,6 +167,8 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
   }
 
   void _startEditing(BudgetItem item, int monthIndex) {
+    if(!widget.allowEditing) return;
+    
     if (_isEditing && (_editingItem != item || _editingIndex != monthIndex)) {
       _commitEditing();
     }
@@ -276,8 +279,8 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
   Widget _buildRow(BudgetItem item, {required bool isBold}) {
     final backgroundColor =
         isBold ? Colors.white : widget.backgroundColor.withOpacity(0.2);
-    final itemYearTotal = item.monthly.fold<num>(0, (sum, m) => sum + m);
-
+    num itemYearTotal = item.monthly.fold<num>(0, (sum, m) => sum + m);
+    itemYearTotal = double.parse(itemYearTotal.toStringAsFixed(2));
     return Container(
       decoration: BoxDecoration(
         color: backgroundColor,
@@ -364,7 +367,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                             onSubmitted: (_) => _commitEditing(),
                           )
                         : Text(
-                            _formatNumber(item.monthly[index].toDouble()),
+                            _formatNumber(double.parse(item.monthly[index].toStringAsFixed(2))),
                             textAlign: TextAlign.right,
                             style: TextStyle(
                               fontSize: kCellFontSize,
@@ -386,7 +389,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
               child: Padding(
                 padding: kCellPadding,
                 child: Text(
-                  _formatNumber(itemYearTotal.toDouble()),
+                  _formatNumber(double.parse(itemYearTotal.toStringAsFixed(2))),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                       fontSize: kCellFontSize,
