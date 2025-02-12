@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:finance_manager/features/budget/data.dart';
-
+/* DISTANCE BETWEEN TRACKED AND BUDGET NOT FIXED PROPERLY */
 class FigureCard extends StatefulWidget {
   const FigureCard({super.key});
 
