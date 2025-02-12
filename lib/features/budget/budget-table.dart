@@ -135,7 +135,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       _editingController.text = _formatNumber(_previousValue);
     }
 
-    String newValue = _editingController.text.trim().replaceAll('=', '');
+    String newValue = _editingController.text.trim().replaceAll('=', '').replaceAll(' ', '');
     num parsed;
     
     // Check if the input contains arithmetic operators
@@ -177,7 +177,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       _editingItem = item;
       _editingIndex = monthIndex;
       _previousValue = item.monthly[monthIndex];
-      _editingController.text = _formatNumber(_previousValue);
+      _editingController.text = _previousValue.toString().replaceFirst('.0', '');
       // _editingController.text = '';
     });
   }
@@ -353,8 +353,10 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
                     child: isCellEditing
                         ? TextField(
                             controller: _editingController,
-                            keyboardType: const TextInputType.numberWithOptions(
-                                decimal: true),
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9\.\,\+\-\*\/\s]')),
+                            ],
                             autofocus: true,
                             textAlign: TextAlign.right,
                             style: TextStyle(fontSize: kCellFontSize),

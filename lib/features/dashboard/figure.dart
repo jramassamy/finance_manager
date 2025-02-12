@@ -13,6 +13,15 @@ class FigureCard extends StatefulWidget {
 
 class FigureCardState extends State<FigureCard> {
   int? touchedIndex;
+  int selectedLastMonth = DateTime.now().month - 1; // Current month
+  final dropdown = FocusNode();
+
+  // Track visibility of each category
+  bool showIncome = true;
+  bool showExpenses = true;
+  bool showSavings = true;
+  bool showPatrimoine = false;
+  bool showToInvest = false;
 
   @override
   void initState() {
@@ -24,24 +33,31 @@ class FigureCardState extends State<FigureCard> {
     });
   }
 
-  Widget _buildLegendItem(Color color, String label) {
-    return Row(
-      children: [
-        Container(
-          width: 8,
-          height: 8,
-          decoration: BoxDecoration(
-            color: color,
-            shape: BoxShape.circle,
-          ),
+  Widget _buildLegendItem(
+      Color color, String label, bool isVisible, VoidCallback onTap) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Opacity(
+        opacity: isVisible ? 1.0 : 0.5,
+        child: Row(
+          children: [
+            Container(
+              width: 8,
+              height: 8,
+              decoration: BoxDecoration(
+                color: color,
+                shape: BoxShape.circle,
+              ),
+            ),
+            const SizedBox(width: 4),
+            Text(
+              label,
+              style: const TextStyle(fontSize: 12),
+            ),
+            const SizedBox(width: 16),
+          ],
         ),
-        const SizedBox(width: 4),
-        Text(
-          label,
-          style: const TextStyle(fontSize: 12),
-        ),
-        const SizedBox(width: 16),
-      ],
+      ),
     );
   }
 
@@ -61,15 +77,73 @@ class FigureCardState extends State<FigureCard> {
         aspectRatio: 2,
         child: Column(
           children: [
-            // Legend row
+            // Month selector and Legend row
             Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  _buildLegendItem(BudgetData.kGreen, 'Income'),
-                  _buildLegendItem(BudgetData.kPink, 'Expenses'),
-                  _buildLegendItem(BudgetData.kBlue, 'Savings'),
+                  // Month selector dropdown
+                  Padding(
+                    padding: const EdgeInsets.only(left: 16),
+                    child: DropdownButton<int>(
+                      focusNode: dropdown,
+                      value: selectedLastMonth,
+                      items: List.generate(
+                        12,
+                        (index) => DropdownMenuItem(
+                          value: index,
+                          child: Text(months[index]),
+                        ),
+                      ),
+                      onChanged: (int? newValue) {
+                        if (newValue != null) {
+                          setState(() {
+                            selectedLastMonth = newValue;
+                          });
+                          dropdown.unfocus();
+                        }
+                      },
+                    ),
+                  ),
+                  const Spacer(),
+                  // Legend items
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 4,
+                    children: [
+                      _buildLegendItem(
+                        BudgetData.kGreen,
+                        'Income',
+                        showIncome,
+                        () => setState(() => showIncome = !showIncome),
+                      ),
+                      _buildLegendItem(
+                        BudgetData.kPink,
+                        'Expenses',
+                        showExpenses,
+                        () => setState(() => showExpenses = !showExpenses),
+                      ),
+                      _buildLegendItem(
+                        BudgetData.kBlue,
+                        'Savings',
+                        showSavings,
+                        () => setState(() => showSavings = !showSavings),
+                      ),
+                      _buildLegendItem(
+                        const Color.fromARGB(255, 12, 122, 108),
+                        'Patrimoine',
+                        showPatrimoine,
+                        () => setState(() => showPatrimoine = !showPatrimoine),
+                      ),
+                      _buildLegendItem(
+                        BudgetData.kDarkNavy,
+                        '€ to invest',
+                        showToInvest,
+                        () => setState(() => showToInvest = !showToInvest),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(width: 16),
                 ],
               ),
             ),
@@ -92,38 +166,62 @@ class FigureCardState extends State<FigureCard> {
                             tooltipMargin: 8,
                             getTooltipItem: (group, groupIndex, rod, rodIndex) {
                               final monthIndex = groupIndex;
-                              final categoryIndex = rodIndex;
-                              
-                              String categoryName;
-                              List<BudgetItem> items;
-                              Color trackColor;
-                              Color budgetColor;
-                              
-                              switch(categoryIndex) {
-                                case 0:
-                                  categoryName = 'Income';
-                                  items = BudgetData.incomeItems;
-                                  trackColor = BudgetData.kGreen;
-                                  budgetColor = const Color.fromARGB(255, 186, 238, 191);
-                                  break;
-                                case 1:
-                                  categoryName = 'Expenses';
-                                  items = BudgetData.expenseItems;
-                                  trackColor = BudgetData.kPink;
-                                  budgetColor = const Color.fromARGB(255, 240, 169, 219);
-                                  break;
-                                case 2:
-                                  categoryName = 'Savings';
-                                  items = BudgetData.savingsItems;
-                                  trackColor = BudgetData.kBlue;
-                                  budgetColor = const Color.fromARGB(255, 121, 205, 241);
-                                  break;
-                                default:
-                                  return null;
-                              }
 
-                              final tracked = items.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]);
-                              final budget = items.fold(0.0, (sum, item) => sum + item.budget[monthIndex]);
+                              // Create a list of visible categories
+                              final visibleCategories = [
+                                if (showIncome)
+                                  (
+                                    'Income',
+                                    BudgetData.incomeItems,
+                                    BudgetData.kGreen,
+                                    const Color.fromARGB(255, 186, 238, 191)
+                                  ),
+                                if (showExpenses)
+                                  (
+                                    'Expenses',
+                                    BudgetData.expenseItems,
+                                    BudgetData.kPink,
+                                    const Color.fromARGB(255, 240, 169, 219)
+                                  ),
+                                if (showSavings)
+                                  (
+                                    'Savings',
+                                    BudgetData.savingsItems,
+                                    BudgetData.kBlue,
+                                    const Color.fromARGB(255, 121, 205, 241)
+                                  ),
+                                if (showPatrimoine)
+                                  (
+                                    'Patrimoine',
+                                    BudgetData.patrimoineItems,
+                                    const Color.fromARGB(255, 12, 122, 108),
+                                    const Color.fromARGB(255, 144, 199, 192)
+                                  ),
+                                if (showToInvest)
+                                  (
+                                    '€ to invest',
+                                    BudgetData.remainingItems,
+                                    BudgetData.kDarkNavy,
+                                    const Color.fromARGB(255, 108, 124, 156)
+                                  ),
+                              ];
+
+                              // Check if rodIndex is valid for visible categories
+                              if (rodIndex >= visibleCategories.length)
+                                return null;
+
+                              final (
+                                categoryName,
+                                items,
+                                trackColor,
+                                budgetColor
+                              ) = visibleCategories[rodIndex];
+
+                              final tracked = items[0].monthly[monthIndex];
+                              final budget = (categoryName == '€ to invest' ||
+                                      categoryName == 'Patrimoine')
+                                  ? items[0].monthly[monthIndex]
+                                  : items[0].budget[monthIndex];
 
                               return BarTooltipItem(
                                 '$categoryName\n',
@@ -165,7 +263,8 @@ class FigureCardState extends State<FigureCard> {
                               );
                             },
                           ),
-                          touchCallback: (FlTouchEvent event, barTouchResponse) {
+                          touchCallback:
+                              (FlTouchEvent event, barTouchResponse) {
                             setState(() {
                               if (!event.isInterestedForInteractions ||
                                   barTouchResponse == null ||
@@ -173,7 +272,8 @@ class FigureCardState extends State<FigureCard> {
                                 touchedIndex = -1;
                                 return;
                               }
-                              touchedIndex = barTouchResponse.spot!.touchedBarGroupIndex;
+                              touchedIndex =
+                                  barTouchResponse.spot!.touchedBarGroupIndex;
                             });
                           },
                         ),
@@ -184,10 +284,24 @@ class FigureCardState extends State<FigureCard> {
                               showTitles: true,
                               reservedSize: 28,
                               getTitlesWidget: (double value, TitleMeta meta) {
-                                const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+                                const months = [
+                                  'Jan',
+                                  'Fév',
+                                  'Mar',
+                                  'Avr',
+                                  'Mai',
+                                  'Juin',
+                                  'Juil',
+                                  'Août',
+                                  'Sep',
+                                  'Oct',
+                                  'Nov',
+                                  'Déc'
+                                ];
                                 return SideTitleWidget(
                                   meta: meta,
-                                  child: Text(months[value.toInt()], style: const TextStyle(fontSize: 10)),
+                                  child: Text(months[value.toInt()],
+                                      style: const TextStyle(fontSize: 10)),
                                 );
                               },
                             ),
@@ -229,66 +343,160 @@ class FigureCardState extends State<FigureCard> {
                         borderData: FlBorderData(
                           show: false,
                         ),
-                        barGroups: List.generate(12, (monthIndex) {
+                        barGroups:
+                            List.generate(selectedLastMonth + 1, (monthIndex) {
                           return BarChartGroupData(
                             x: monthIndex,
                             barsSpace: 2,
                             barRods: [
                               // Income bar
-                              BarChartRodData(
-                                toY: BudgetData.incomeItems.fold(0.0, (sum, item) => sum + item.budget[monthIndex]),
-                                rodStackItems: [
-                                  BarChartRodStackItem(
-                                    0,
-                                    BudgetData.incomeItems.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]),
-                                    BudgetData.kGreen,
-                                  ),
-                                  BarChartRodStackItem(
-                                    BudgetData.incomeItems.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]),
-                                    BudgetData.incomeItems.fold(0.0, (sum, item) => sum + item.budget[monthIndex]),
-                                    const Color.fromARGB(255, 186, 238, 191),
-                                  ),
-                                ],
-                                borderRadius: BorderRadius.zero,
-                                width: barsWidth,
-                              ),
+                              if (showIncome)
+                                BarChartRodData(
+                                  toY: BudgetData.incomeItems.fold(
+                                      0.0,
+                                      (sum, item) =>
+                                          sum + item.budget[monthIndex]),
+                                  rodStackItems: [
+                                    BarChartRodStackItem(
+                                      0,
+                                      BudgetData.incomeItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.monthly[monthIndex]),
+                                      BudgetData.kGreen,
+                                    ),
+                                    BarChartRodStackItem(
+                                      BudgetData.incomeItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.monthly[monthIndex]),
+                                      BudgetData.incomeItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.budget[monthIndex]),
+                                      const Color.fromARGB(255, 186, 238, 191),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.zero,
+                                  width: barsWidth,
+                                ),
                               // Expenses bar
-                              BarChartRodData(
-                                toY: BudgetData.expenseItems.fold(0.0, (sum, item) => sum + item.budget[monthIndex]),
-                                rodStackItems: [
-                                  BarChartRodStackItem(
-                                    0,
-                                    BudgetData.expenseItems.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]),
-                                    BudgetData.kPink,
-                                  ),
-                                  BarChartRodStackItem(
-                                    BudgetData.expenseItems.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]),
-                                    BudgetData.expenseItems.fold(0.0, (sum, item) => sum + item.budget[monthIndex]),
-                                    const Color.fromARGB(255, 240, 169, 219),
-                                  ),
-                                ],
-                                borderRadius: BorderRadius.zero,
-                                width: barsWidth,
-                              ),
+                              if (showExpenses)
+                                BarChartRodData(
+                                  toY: BudgetData.expenseItems.fold(
+                                      0.0,
+                                      (sum, item) =>
+                                          sum + item.budget[monthIndex]),
+                                  rodStackItems: [
+                                    BarChartRodStackItem(
+                                      0,
+                                      BudgetData.expenseItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.monthly[monthIndex]),
+                                      BudgetData.kPink,
+                                    ),
+                                    BarChartRodStackItem(
+                                      BudgetData.expenseItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.monthly[monthIndex]),
+                                      BudgetData.expenseItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.budget[monthIndex]),
+                                      const Color.fromARGB(255, 240, 169, 219),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.zero,
+                                  width: barsWidth,
+                                ),
                               // Savings bar
-                              BarChartRodData(
-                                toY: BudgetData.savingsItems.fold(0.0, (sum, item) => sum + item.budget[monthIndex]),
-                                rodStackItems: [
-                                  BarChartRodStackItem(
-                                    0,
-                                    BudgetData.savingsItems.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]),
-                                    BudgetData.kBlue,
-                                  ),
-                                  BarChartRodStackItem(
-                                    BudgetData.savingsItems.fold(0.0, (sum, item) => sum + item.monthly[monthIndex]),
-                                    BudgetData.savingsItems.fold(0.0, (sum, item) => sum + item.budget[monthIndex]),
-                                    const Color.fromARGB(255, 121, 205, 241),
-                                  ),
-                                ],
-                                borderRadius: BorderRadius.zero,
-                                width: barsWidth,
-                              ),
-                            ],
+                              if (showSavings)
+                                BarChartRodData(
+                                  toY: BudgetData.savingsItems.fold(
+                                      0.0,
+                                      (sum, item) =>
+                                          sum + item.budget[monthIndex]),
+                                  rodStackItems: [
+                                    BarChartRodStackItem(
+                                      0,
+                                      BudgetData.savingsItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.monthly[monthIndex]),
+                                      BudgetData.kBlue,
+                                    ),
+                                    BarChartRodStackItem(
+                                      BudgetData.savingsItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.monthly[monthIndex]),
+                                      BudgetData.savingsItems.fold(
+                                          0.0,
+                                          (sum, item) =>
+                                              sum + item.budget[monthIndex]),
+                                      const Color.fromARGB(255, 121, 205, 241),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.zero,
+                                  width: barsWidth,
+                                ),
+                              // Patrimoine bar
+                              if (showPatrimoine)
+                                BarChartRodData(
+                                  toY: BudgetData
+                                      .patrimoineItems[0].budget[monthIndex]
+                                      .toDouble(),
+                                  rodStackItems: [
+                                    BarChartRodStackItem(
+                                      0,
+                                      BudgetData.patrimoineItems[0]
+                                          .monthly[monthIndex]
+                                          .toDouble(),
+                                      const Color.fromARGB(255, 12, 122, 108),
+                                    ),
+                                    BarChartRodStackItem(
+                                      BudgetData.patrimoineItems[0]
+                                          .monthly[monthIndex]
+                                          .toDouble(),
+                                      BudgetData
+                                          .patrimoineItems[0].budget[monthIndex]
+                                          .toDouble(),
+                                      const Color.fromARGB(255, 144, 199, 192),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.zero,
+                                  width: barsWidth,
+                                ),
+                              // € to invest bar
+                              if (showToInvest)
+                                BarChartRodData(
+                                  toY: BudgetData
+                                      .remainingItems[0].budget[monthIndex]
+                                      .toDouble(),
+                                  rodStackItems: [
+                                    BarChartRodStackItem(
+                                      0,
+                                      BudgetData
+                                          .remainingItems[0].monthly[monthIndex]
+                                          .toDouble(),
+                                      BudgetData.kDarkNavy,
+                                    ),
+                                    BarChartRodStackItem(
+                                      BudgetData
+                                          .remainingItems[0].monthly[monthIndex]
+                                          .toDouble(),
+                                      BudgetData
+                                          .remainingItems[0].budget[monthIndex]
+                                          .toDouble(),
+                                      const Color.fromARGB(255, 108, 124, 156),
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.zero,
+                                  width: barsWidth,
+                                ),
+                            ].where((rod) => rod != null).toList(),
                           );
                         }).toList(),
                       ),

@@ -53,7 +53,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingCategory = category;
       _editingField = field;
       _previousValue = value;
-      _editingController.text = _formatNumber(value);
+      _editingController.text = value.toString().replaceFirst('.0', '');
       // _editingController.text = '';
     });
   }
@@ -68,7 +68,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingController.text = _formatNumber(_previousValue);
     }
 
-    String newValue = _editingController.text.trim().replaceAll('=', '');
+    String newValue = _editingController.text.trim().replaceAll('=', '').replaceAll(' ', '');
     num parsed;
 
     // Check if the input contains arithmetic operators
@@ -420,9 +420,10 @@ class _MonthlyCardState extends State<MonthlyCard> {
                           ? TextField(
                               controller: _editingController,
                               autofocus: true,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                      decimal: true),
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9\.\,\+\-\*\/\s]')),
+                            ],
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -459,9 +460,10 @@ class _MonthlyCardState extends State<MonthlyCard> {
                           ? TextField(
                               controller: _editingController,
                               autofocus: true,
-                              keyboardType:
-                                  const TextInputType.numberWithOptions(
-                                      decimal: true),
+                            keyboardType: TextInputType.text,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.allow(RegExp(r'[0-9\.\,\+\-\*\/\s]')),
+                            ],
                               textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -534,26 +536,11 @@ class _MonthlyCardState extends State<MonthlyCard> {
     // Define the header color for the Finance section
     final Color headerColor = const Color(0xFF1E2B4C); // dark navy color
 
-    // Calculate totals for each category
-    double totalIncome = 0;
-    double totalExpenses = 0;
-    double totalSavings = 0;
-
-    for (final item in BudgetData.incomeItems) {
-      totalIncome += item.monthly[_monthIndex];
-    }
-    for (final item in BudgetData.expenseItems) {
-      totalExpenses += item.monthly[_monthIndex];
-    }
-    for (final item in BudgetData.savingsItems) {
-      totalSavings += item.monthly[_monthIndex];
-    }
-
     // Calculate the financial metrics
-    double toInvest = totalIncome - totalExpenses;
-    toInvest = double.parse(toInvest.toStringAsFixed(2));
-    double patrimony = totalIncome + totalSavings - totalExpenses;
-    patrimony = double.parse(patrimony.toStringAsFixed(2));
+    num toInvest = BudgetData.findByName(BudgetData.remainingItems, 'remaining').monthly[_monthIndex];
+    toInvest = num.parse(toInvest.toStringAsFixed(2));
+    num patrimony = BudgetData.findByName(BudgetData.patrimoineItems, 'patrimoine').monthly[_monthIndex];
+    patrimony = num.parse(patrimony.toStringAsFixed(2));
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -611,7 +598,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   /// Builds a single row for the finance section
   Widget _buildFinanceRow(
       {required String name,
-      required double value,
+      required num value,
       required Color color,
       required Color borderColor,
       required Color baseColor}) {
@@ -845,7 +832,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   void dispose() {
     _editingController.dispose();
     _focusNode.dispose();
-    BudgetData.dispose();
+    BudgetData.dispose(); // dispose by principle, but as it's shared, it does nothing
     super.dispose();
   }
 }

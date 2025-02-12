@@ -66,7 +66,7 @@ class BudgetData {
     static Color kGreen = Color.fromRGBO(38, 168, 109, 1);
     static Color kPink = Color.fromRGBO(254, 22, 132, 1);
     static Color kBlue = Color.fromRGBO(50, 133, 243, 1);
-
+  
   // Default data with everything set to 1000
   static final List<BudgetItem> _defaultIncomeItems = [
     BudgetItem(name: 'Employment (Net)', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
@@ -97,46 +97,51 @@ class BudgetData {
   static List<BudgetItem> get remainingItems => [
         BudgetItem(
           name: 'Remaining',
-          monthly: List.generate(12, (index) {
-            num incomeTotal =
-                incomeItems.fold(0, (sum, item) => sum + item.monthly[index]);
-            num expenseTotal =
-                expenseItems.fold(0, (sum, item) => sum + item.monthly[index]);
-            return incomeTotal - expenseTotal;
-          }),
-          budget: List.generate(12, (index) {
-            num incomeBudget =
-                incomeItems.fold(0, (sum, item) => sum + item.budget[index]);
-            num expenseBudget =
-                expenseItems.fold(0, (sum, item) => sum + item.budget[index]);
-            return incomeBudget - expenseBudget;
-          }),
+          monthly: _generateCumulativeList((index) {
+            return incomeItems.fold(0.0, (sum, item) => sum + item.monthly[index]) -
+                   expenseItems.fold(0.0, (sum, item) => sum + item.monthly[index]);
+          }, isRemaining: true),
+          budget: _generateCumulativeList((index) {
+            return incomeItems.fold(0.0, (sum, item) => sum + item.budget[index]) -
+                   expenseItems.fold(0.0, (sum, item) => sum + item.budget[index]);
+          }, isRemaining: true),
         ),
-      ];
+    ];
 
   static List<BudgetItem> get patrimoineItems => [
         BudgetItem(
           name: 'Patrimoine',
-          monthly: List.generate(12, (index) {
-            num incomeTotal =
-                incomeItems.fold(0, (sum, item) => sum + item.monthly[index]);
-            num savingsTotal =
-                savingsItems.fold(0, (sum, item) => sum + item.monthly[index]);
-            num expenseTotal =
-                expenseItems.fold(0, (sum, item) => sum + item.monthly[index]);
-            return incomeTotal + savingsTotal - expenseTotal;
+          monthly: _generateCumulativeList((index) {
+            return incomeItems.fold(0.0, (sum, item) => sum + item.monthly[index]) +
+                   savingsItems.fold(0.0, (sum, item) => sum + item.monthly[index]) -
+                   expenseItems.fold(0.0, (sum, item) => sum + item.monthly[index]);
           }),
-          budget: List.generate(12, (index) {
-            num incomeBudget =
-                incomeItems.fold(0, (sum, item) => sum + item.budget[index]);
-            num savingsBudget =
-                savingsItems.fold(0, (sum, item) => sum + item.budget[index]);
-            num expenseBudget =
-                expenseItems.fold(0, (sum, item) => sum + item.budget[index]);
-            return incomeBudget + savingsBudget - expenseBudget;
+          budget: _generateCumulativeList((index) {
+            return incomeItems.fold(0.0, (sum, item) => sum + item.budget[index]) +
+                   savingsItems.fold(0.0, (sum, item) => sum + item.budget[index]) -
+                   expenseItems.fold(0.0, (sum, item) => sum + item.budget[index]);
           }),
         ),
-      ];
+    ];
+
+  static findByName(List<BudgetItem> items, String name) {
+    return items.firstWhere((item) => item.name.toLowerCase() == name.toLowerCase());
+  }
+
+  static List<num> _generateCumulativeList(num Function(int) calculator, {bool isRemaining = false}) {
+    List<num> result = List.filled(12, 0);
+    result[0] = calculator(0);  // January is not cumulative
+    if(result[0] < 0 && isRemaining) {
+      result[0] = 0;
+    }
+    for (int i = 1; i < 12; i++) {
+      result[i] = result[i - 1] + calculator(i);
+      if(result[i] < 0 && isRemaining) {
+        result[i] = 0;
+      }
+    }
+    return result;
+  }
 
   // JSON serialization
   static Map<String, dynamic> toJson() => {
