@@ -536,10 +536,10 @@ class _MonthlyCardState extends State<MonthlyCard> {
     // Define the header color for the Finance section
     final Color headerColor = const Color(0xFF1E2B4C); // dark navy color
 
-    // Calculate the financial metrics
-    num toInvest = BudgetData.findByName(BudgetData.remainingItems, 'remaining').monthly[_monthIndex];
+    // Calculate the financial metrics | Cumulative or Monthly
+    num toInvest = BudgetData.findByName(BudgetData.remainingItems, 'monthly remaining').monthly[_monthIndex];
     toInvest = num.parse(toInvest.toStringAsFixed(2));
-    num patrimony = BudgetData.findByName(BudgetData.patrimoineItems, 'patrimoine').monthly[_monthIndex];
+    num patrimony = BudgetData.findByName(BudgetData.patrimoineItems, 'monthly patrimoine').monthly[_monthIndex];
     patrimony = num.parse(patrimony.toStringAsFixed(2));
 
     return Column(
@@ -556,7 +556,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 flex: 4,
                 child: Padding(
                   padding: EdgeInsets.only(left: 0),
-                  child: Text('Finance',
+                  child: Text('Finance (Non Cumulative)',
                       style: TextStyle(
                           fontWeight: FontWeight.w600, color: Colors.white)),
                 ),

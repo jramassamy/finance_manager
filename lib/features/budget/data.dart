@@ -93,39 +93,72 @@ class BudgetData {
     BudgetItem(name: 'Crypto', monthly: List.filled(12, 0), budget: List.filled(12, 0)),
   ];
 
+  static num remainingTotal = 0;
+  static num patrimoineTotal = 0;
   // Getters for computed items
   static List<BudgetItem> get remainingItems => [
         BudgetItem(
-          name: 'Remaining',
-          monthly: _generateCumulativeList((index) {
+          name: 'Monthly Remaining',
+          monthly: List.generate(12, (index) {
             return incomeItems.fold(0.0, (sum, item) => sum + item.monthly[index]) -
                    expenseItems.fold(0.0, (sum, item) => sum + item.monthly[index]);
-          }, isRemaining: true),
-          budget: _generateCumulativeList((index) {
+          }),
+          budget: List.generate(12, (index) {
             return incomeItems.fold(0.0, (sum, item) => sum + item.budget[index]) -
                    expenseItems.fold(0.0, (sum, item) => sum + item.budget[index]);
-          }, isRemaining: true),
+          }),
         ),
+        // BudgetItem(
+        //   name: 'Cumulative Remaining',
+        //   monthly: _generateCumulativeList((index) {
+        //     return incomeItems.fold(0.0, (sum, item) => sum + item.monthly[index]) -
+        //            expenseItems.fold(0.0, (sum, item) => sum + item.monthly[index]);
+        //   }, isRemaining: true),
+        //   budget: _generateCumulativeList((index) {
+        //     return incomeItems.fold(0.0, (sum, item) => sum + item.budget[index]) -
+        //            expenseItems.fold(0.0, (sum, item) => sum + item.budget[index]);
+        //   }, isRemaining: true),
+        // ),
     ];
 
   static List<BudgetItem> get patrimoineItems => [
         BudgetItem(
-          name: 'Patrimoine',
-          monthly: _generateCumulativeList((index) {
+          name: 'Monthly Patrimoine',
+          monthly: List.generate(12, (index) {
             return incomeItems.fold(0.0, (sum, item) => sum + item.monthly[index]) +
                    savingsItems.fold(0.0, (sum, item) => sum + item.monthly[index]) -
                    expenseItems.fold(0.0, (sum, item) => sum + item.monthly[index]);
           }),
-          budget: _generateCumulativeList((index) {
+          budget: List.generate(12, (index) {
             return incomeItems.fold(0.0, (sum, item) => sum + item.budget[index]) +
                    savingsItems.fold(0.0, (sum, item) => sum + item.budget[index]) -
                    expenseItems.fold(0.0, (sum, item) => sum + item.budget[index]);
           }),
         ),
+        // BudgetItem(
+        //   name: 'Cumulative Patrimoine',
+        //   monthly: _generateCumulativeList((index) {
+        //     return incomeItems.fold(0.0, (sum, item) => sum + item.monthly[index]) +
+        //            savingsItems.fold(0.0, (sum, item) => sum + item.monthly[index]) -
+        //            expenseItems.fold(0.0, (sum, item) => sum + item.monthly[index]);
+        //   }),
+        //   budget: _generateCumulativeList((index) {
+        //     return incomeItems.fold(0.0, (sum, item) => sum + item.budget[index]) +
+        //            savingsItems.fold(0.0, (sum, item) => sum + item.budget[index]) -
+        //            expenseItems.fold(0.0, (sum, item) => sum + item.budget[index]);
+        //   }),
+        // ),
     ];
 
   static findByName(List<BudgetItem> items, String name) {
     return items.firstWhere((item) => item.name.toLowerCase() == name.toLowerCase());
+  }
+
+  static void updateTotal(List<num> list) {
+    remainingTotal = 0;  // Reset the total
+    for(int i = 0; i < list.length; i++) {
+      remainingTotal += list[i];
+    }
   }
 
   static List<num> _generateCumulativeList(num Function(int) calculator, {bool isRemaining = false}) {
@@ -134,6 +167,7 @@ class BudgetData {
     if(result[0] < 0 && isRemaining) {
       result[0] = 0;
     }
+    
     for (int i = 1; i < 12; i++) {
       result[i] = result[i - 1] + calculator(i);
       if(result[i] < 0 && isRemaining) {
