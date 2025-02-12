@@ -220,12 +220,14 @@ class BudgetData {
 
     // Add this method
   static void notifyDataChanged() {
-    _dataChangeController.add(null);
+      _dataChangeController.add(null);
   }
 
-  // Don't forget to close the controller when it's no longer needed
+  // I DO NOT WANT TO CLOSE THIS
   static void dispose() {
-    _dataChangeController.close();
+    // if (!_dataChangeController.isClosed) {
+    //   _dataChangeController.close();
+    // }
   }
   
 }

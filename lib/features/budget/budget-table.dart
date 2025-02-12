@@ -38,8 +38,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
   bool _isEditing = false;
   int? _editingIndex;
   BudgetItem? _editingItem;
-  String? _originalValue;
-
+  num _previousValue = 0;
   late bool _isExpanded;
   late AnimationController _animationController;
   late Animation<double> _animation;
@@ -82,7 +81,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
   num _evaluateExpression(String expression) {
     // Remove all spaces from the expression
     expression = expression.replaceAll(' ', '');
-    
+    expression = expression.replaceAll(',', '.');
     // Check if expression contains any invalid characters
     if (!RegExp(r'^[0-9\.\+\-\*\/]+$').hasMatch(expression)) {
       return 0;
@@ -125,7 +124,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       }
       return result;
     } catch (e) {
-      return 0;
+      return _previousValue;
     }
   }
 
@@ -133,7 +132,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
     if (!_isEditing || _editingItem == null || _editingIndex == null || !widget.allowEditing) return;
 
     if(_editingController.text.trim().isEmpty) {
-      _editingController.text = _originalValue!;
+      _editingController.text = _formatNumber(_previousValue);
     }
 
     String newValue = _editingController.text.trim().replaceAll('=', '');
@@ -144,7 +143,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       // Remove any equal signs from the expression
       parsed = _evaluateExpression(newValue);
     } else {
-      parsed = num.tryParse(newValue) ?? 0;
+      parsed = num.tryParse(newValue) ?? _previousValue;
     }
 
     // Round to 2 decimal places if it's a double
@@ -158,7 +157,7 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       _isEditing = false;
       _editingIndex = null;
       _editingItem = null;
-      _originalValue = null;
+      _previousValue = 0;
       _editingController.clear();
     });
 
@@ -177,9 +176,9 @@ class _BudgetTableSectionState extends State<BudgetTableSection>
       _isEditing = true;
       _editingItem = item;
       _editingIndex = monthIndex;
-      _originalValue = item.monthly[monthIndex].toString();
-      _editingController.text = '';
-      // _editingController.text = _originalValue!;
+      _previousValue = item.monthly[monthIndex];
+      _editingController.text = _formatNumber(_previousValue);
+      // _editingController.text = '';
     });
   }
 

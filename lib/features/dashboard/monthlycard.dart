@@ -25,7 +25,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   BudgetItem? _editingItem;
   int? _editingRowIndex;
   String? _editingCategory;
-  String? _originalValue;
+  num _previousValue = 0;
   String? _editingField; // 'tracked' or 'budget'
   final TextEditingController _editingController = TextEditingController();
 
@@ -52,8 +52,9 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingRowIndex = rowIndex;
       _editingCategory = category;
       _editingField = field;
-      _originalValue = value.toString();
-      _editingController.text = '';
+      _previousValue = value;
+      _editingController.text = _formatNumber(value);
+      // _editingController.text = '';
     });
   }
 
@@ -64,7 +65,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
     }
 
     if (_editingController.text.trim().isEmpty) {
-      _editingController.text = _originalValue!;
+      _editingController.text = _formatNumber(_previousValue);
     }
 
     String newValue = _editingController.text.trim().replaceAll('=', '');
@@ -75,7 +76,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
       // Remove any equal signs from the expression
       parsed = _evaluateExpression(newValue);
     } else {
-      parsed = num.tryParse(newValue) ?? 0;
+      parsed = num.tryParse(newValue) ?? _previousValue;
     }
 
     if (parsed is double) {
@@ -118,7 +119,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
       _editingRowIndex = null;
       _editingCategory = null;
       _editingField = null;
-      _originalValue = null;
+      _previousValue = 0;
       _editingController.clear();
     });
   }
@@ -126,6 +127,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
   num _evaluateExpression(String expression) {
     // Remove all spaces from the expression
     expression = expression.replaceAll(' ', '');
+    expression = expression.replaceAll(',', '.');
 
     // Check if expression contains any invalid characters
     if (!RegExp(r'^[0-9\.\+\-\*\/]+$').hasMatch(expression)) {
@@ -173,21 +175,6 @@ class _MonthlyCardState extends State<MonthlyCard> {
       return 0;
     }
   }
-
-  /// Cancel editing without committing changes.
-  void _cancelEditing() {
-    if (!_isEditing) return;
-    setState(() {
-      _isEditing = false;
-      _editingItem = null;
-      _editingRowIndex = null;
-      _editingCategory = null;
-      _editingField = null;
-      _originalValue = null;
-      _editingController.clear();
-    });
-  }
-
   /// Helper that builds the "Income", "Expenses", or "Savings" sections
   Widget _buildCategorySection(
       {required String categoryTitle,
