@@ -70,6 +70,7 @@ class DashboardPage extends StatelessWidget {
                             title: 'Savings',
                             items: BudgetData.savingsItems,
                             baseColor: BudgetData.kBlue,
+                            isCumulative: false,
                           ),
                         ],
                       ),

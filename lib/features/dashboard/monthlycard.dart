@@ -556,7 +556,7 @@ class _MonthlyCardState extends State<MonthlyCard> {
                 flex: 4,
                 child: Padding(
                   padding: EdgeInsets.only(left: 0),
-                  child: Text('Finance (Non Cumulative)',
+                  child: Text('Finance',
                       style: TextStyle(
                           fontWeight: FontWeight.w600, color: Colors.white)),
                 ),

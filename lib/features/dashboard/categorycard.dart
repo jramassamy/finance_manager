@@ -6,12 +6,14 @@ class CategoryCard extends StatelessWidget {
   final String title;
   final List<BudgetItem> items;
   final Color baseColor;
+  final bool isCumulative;
 
   const CategoryCard({
     super.key,
     required this.title,
     required this.items,
     required this.baseColor,
+    this.isCumulative = true,
   });
 
   @override
@@ -20,7 +22,13 @@ class CategoryCard extends StatelessWidget {
     final Map<String, double> dataMap = {};
     double total = 0.0;
     for (var item in items) {
-      final sum = item.monthly.fold(0.0, (monthSum, month) => monthSum + month);
+      double sum;
+      if (isCumulative) {
+        sum = item.monthly.fold(0.0, (monthSum, month) => monthSum + month);
+      } else {
+        // For non-cumulative, take value of current month
+        sum = item.monthly[DateTime.now().month - 1].toDouble();
+      }
       dataMap[item.name] = sum;
       total += sum;
     }
@@ -128,10 +136,10 @@ class CategoryCard extends StatelessWidget {
                         ],
                       ),
                       Text(_formatNumber(
-                        double.parse(items[i]
-                          .monthly
-                          .fold(0.0, (sum, m) => sum + m)
-                          .toStringAsFixed(2)))),
+                        isCumulative 
+                          ? double.parse(items[i].monthly.fold(0.0, (sum, m) => sum + m).toStringAsFixed(2))
+                          : double.parse(items[i].monthly[DateTime.now().month - 1].toStringAsFixed(2))
+                      )),
                     ],
                   ),
                   const SizedBox(height: 8),
